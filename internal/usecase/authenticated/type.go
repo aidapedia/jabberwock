@@ -1,0 +1,70 @@
+package authenticated
+
+import (
+	policyRepo "github.com/kurniajigunawan/homestay/internal/repository/policy"
+	userRepo "github.com/kurniajigunawan/homestay/internal/repository/user"
+)
+
+type TokenResponse struct {
+	ID           string
+	Type         string
+	AccessToken  string
+	RefreshToken string
+}
+
+type CheckAccessTokenPayload struct {
+	Token     string
+	ElementID string
+}
+
+type CheckAccessTokenResponse struct {
+	UserID int64
+}
+
+type LoginRequest struct {
+	Identity string
+	Password string
+
+	IP        string
+	UserAgent string
+}
+
+type LoginResponse struct {
+	TokenType    string
+	AccessToken  string
+	RefreshToken string
+	User         userRepo.User
+	Permissions  []policyRepo.Permission
+}
+
+func (e *LoginResponse) Transform(token TokenResponse, user userRepo.User, permissions []policyRepo.Permission) {
+	e.TokenType = token.Type
+	e.AccessToken = token.AccessToken
+	e.RefreshToken = token.RefreshToken
+	e.User = user
+	e.Permissions = permissions
+}
+
+type LogoutRequest struct {
+	Token string
+}
+
+type RegisterRequest struct {
+	Name     string
+	Phone    string
+	Email    string
+	Password string
+}
+
+type RefreshTokenRequest struct {
+	RefreshToken string
+
+	IP        string
+	UserAgent string
+}
+
+type RefreshTokenResponse struct {
+	TokenType    string
+	AccessToken  string
+	RefreshToken string
+}

@@ -1,0 +1,18 @@
+{
+    "ServiceConfig": {
+        "App": {
+            "Name": "homestay",
+            "LocalTime": "Asia/Jakarta",
+            "Log": {
+                "Level": "info"
+            },
+            "HTTPServer": {
+                "Address": "127.0.0.1",
+                "Port": 8080
+            },
+            "Auth": {
+                "Issuer": "http://localhost:8080"
+            }
+        }
+    }
+}
