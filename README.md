@@ -35,8 +35,3 @@ We have a lot of things to do with this framework. Currently, we are working on:
 
 ## License
 The MIT License (MIT) 2017 - [Kurniaji Gunawan](https://github.com/kurniajigunawan/). Please have a look at the [LICENSE.md](LICENSE.md) for more details.
-
-## Support
-If you love this respository, don't forge to support me.
-
-[<img style="width: 200px;" src="https://i.ibb.co.com/mCsbv8NQ/378162407-9b80104f-ee5b-4a13-8030-ef9a87ed9836.png">](https://buymeacoffee.com/aidapedia)
