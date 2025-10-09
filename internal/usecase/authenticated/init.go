@@ -9,7 +9,8 @@ import (
 )
 
 type Interface interface {
-	CheckAccessToken(ctx context.Context, payload CheckAccessTokenPayload) error
+	CheckAccessToken(ctx context.Context, req CheckAccessTokenPayload) error
+	Login(ctx context.Context, req LoginRequest) (resp LoginResponse, err error)
 }
 
 type Usecase struct {
@@ -18,6 +19,10 @@ type Usecase struct {
 	enforcer    *casbin.Enforcer
 }
 
-func New() Interface {
-	return &Usecase{}
+func New(sessionRepo sessionRepo.Interface, userRepo userRepo.Interface, enforcer *casbin.Enforcer) Interface {
+	return &Usecase{
+		sessionRepo: sessionRepo,
+		userRepo:    userRepo,
+		enforcer:    enforcer,
+	}
 }

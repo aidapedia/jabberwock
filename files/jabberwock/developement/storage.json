@@ -1,0 +1,19 @@
+{
+    "ServiceConfig":{
+        "Storage": {
+            "PostgreSQL": {
+                "Address": "<<Fill by Secret>>",
+                "Username": "<<Fill by Secret>>",
+                "Password": "<<Fill by Secret>>",
+                "Port": 5432,
+                "Database": "<<Fill by Secret>>",
+                "SSLMode": false,
+                "TimeZone": "Asia/Jakarta"
+            },
+            "Redis":{
+                "Address": "127.0.0.1",
+                "Port": "6379"
+            }
+        }
+    }
+}

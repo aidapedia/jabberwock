@@ -1,8 +1,5 @@
-package common
-
-import "errors"
+package constant
 
 var (
-	ErrNotFound          = errors.New("not found")
 	ErrorMessageTryAgain = "Oops, something went wrong. Please try again later."
 )

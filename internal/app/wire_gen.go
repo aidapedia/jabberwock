@@ -8,11 +8,21 @@ package app
 
 import (
 	"github.com/aidapedia/jabberwock/internal/interface/http"
+	"github.com/aidapedia/jabberwock/internal/interface/http/handler"
+	"github.com/aidapedia/jabberwock/internal/repository/session"
+	"github.com/aidapedia/jabberwock/internal/repository/user"
+	"github.com/aidapedia/jabberwock/internal/usecase/authenticated"
 )
 
 // Injectors from wire.go:
 
 func InitHTTPServer() http.HTTPServiceInterface {
-	httpServiceInterface := http.NewHTTPService()
+	engineInterface := redisProvider()
+	sessionInterface := session.New(engineInterface)
+	userInterface := user.New()
+	enforcer := casbinProvider()
+	authenticatedInterface := authenticated.New(sessionInterface, userInterface, enforcer)
+	handlerHandler := handler.NewHandler(authenticatedInterface)
+	httpServiceInterface := http.NewHTTPService(handlerHandler)
 	return httpServiceInterface
 }

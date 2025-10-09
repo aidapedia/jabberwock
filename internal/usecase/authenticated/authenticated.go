@@ -11,16 +11,21 @@ import (
 	gers "github.com/aidapedia/gdk/error"
 	"github.com/aidapedia/gdk/telemetry/tracer"
 	"github.com/aidapedia/jabberwock/internal/common"
+	userRepo "github.com/aidapedia/jabberwock/internal/repository/user"
 	pkgJWT "github.com/aidapedia/jabberwock/pkg/jwt"
 	pkgLog "github.com/aidapedia/jabberwock/pkg/log"
+
+	sessionRepo "github.com/aidapedia/jabberwock/internal/repository/session"
+
+	"github.com/google/uuid"
 )
 
 // CheckAccessToken checks if the access token is valid
-func (uc *Usecase) CheckAccessToken(ctx context.Context, payload CheckAccessTokenPayload) (err error) {
+func (uc *Usecase) CheckAccessToken(ctx context.Context, req CheckAccessTokenPayload) (err error) {
 	span, ctx := tracer.StartSpanFromContext(ctx, "AuthUsecase/CheckAccessToken")
 	defer span.Finish(err)
 
-	claims, err := pkgJWT.VerifyToken(strings.TrimPrefix(string(payload.Token), "Bearer "))
+	claims, err := pkgJWT.VerifyToken(strings.TrimPrefix(string(req.Token), "Bearer "))
 	if err != nil {
 		return gers.NewWithMetadata(err, pkgLog.Metadata(http.StatusUnauthorized, "Unauthorized"))
 	}
@@ -57,15 +62,70 @@ func (uc *Usecase) CheckAccessToken(ctx context.Context, payload CheckAccessToke
 		return gers.NewWithMetadata(fmt.Errorf("user is not verified by phone"), pkgLog.Metadata(http.StatusForbidden, "Your phone number is not verified"))
 	}
 
-	method, path := ParseElementID(payload.ElementID)
+	method, path := ParseElementID(req.ElementID)
 	result, err := uc.enforcer.Enforce(role, method, path)
 	if err != nil {
 		return gers.NewWithMetadata(err, pkgLog.Metadata(http.StatusUnauthorized, "Unauthorized"))
 	}
 
 	if !result {
-		return gers.NewWithMetadata(fmt.Errorf("user %d is not authorized to access %s", user.ID, payload.ElementID), pkgLog.Metadata(http.StatusUnauthorized, "Unauthorized"))
+		return gers.NewWithMetadata(fmt.Errorf("user %d is not authorized to access %s", user.ID, req.ElementID), pkgLog.Metadata(http.StatusUnauthorized, "Unauthorized"))
 	}
 
 	return nil
+}
+
+// Login do login for user get sessions
+func (uc *Usecase) Login(ctx context.Context, req LoginRequest) (resp LoginResponse, err error) {
+	span, ctx := tracer.StartSpanFromContext(ctx, "AuthUsecase/Login")
+	defer span.Finish(err)
+
+	user, err := uc.userRepo.FindByPhone(ctx, req.Phone)
+	if err != nil {
+		return LoginResponse{}, gers.NewWithMetadata(err, pkgLog.Metadata(http.StatusInternalServerError, common.ErrorMessageTryAgain))
+	}
+
+	// Check if user phone number is already verified
+	err = uc.validateUser(user)
+	if err != nil {
+		return LoginResponse{}, err
+	}
+
+	// Validate password
+	err = uc.validationPassword(ctx, user, req.Password)
+	if err != nil {
+		return LoginResponse{}, err
+	}
+
+	// Generate token
+	subUUID := uuid.New()
+	accessToken, refreshToken, err := generateToken(user.ID, subUUID.String(), user.Type.String())
+	if err != nil {
+		gers.NewWithMetadata(err,
+			pkgLog.Metadata(http.StatusInternalServerError, common.ErrorMessageTryAgain))
+	}
+
+	// Save session to database
+	err = uc.sessionRepo.SetActiveSession(ctx, sessionRepo.Session{
+		UserID:    user.ID,
+		TokenID:   subUUID.String(),
+		UserAgent: req.UserAgent,
+		IP:        req.IP,
+	})
+	if err != nil {
+		return LoginResponse{}, gers.NewWithMetadata(err, pkgLog.Metadata(http.StatusInternalServerError, common.ErrorMessageTryAgain))
+	}
+
+	return LoginResponse{
+		TokenType:    "Bearer",
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
+		User: userRepo.User{
+			ID:              user.ID,
+			Name:            user.Name,
+			ImageURL:        "https://i.imghippo.com/files/wSZE2700kcI.webp", // TODO: improve this with real avatar
+			Phone:           user.Phone,
+			IsPhoneVerified: user.IsPhoneVerified,
+		},
+	}, nil
 }
