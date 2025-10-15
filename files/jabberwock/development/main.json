@@ -1,0 +1,19 @@
+{
+    "ServiceConfig": {
+        "App": {
+            "Name": "jabberwock",
+            "LocalTime": "Asia/Jakarta",
+            "Log": {
+                "Level": "info"
+            },
+            "HTTPServer": {
+                "Address": "127.0.0.1",
+                "Port": 8080
+            },
+            "Auth": {
+                "ModelPath": "../../files/casbin/model.conf",
+                "PolicyPath": "../../files/casbin/policy.csv"
+            }
+        }
+    }
+}

@@ -4,12 +4,14 @@ go 1.24.2
 
 require (
 	cloud.google.com/go/secretmanager v1.15.0
-	github.com/aidapedia/gdk v0.0.3-0.20251009115946-c158513a92e6
+	github.com/aidapedia/gdk v0.0.3-0.20251015171904-7427b62c0c0e
 	github.com/casbin/casbin/v2 v2.127.0
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/gofiber/fiber/v3 v3.0.0-beta.4
 	github.com/golang-jwt/jwt/v5 v5.3.0
+	github.com/google/uuid v1.6.0
 	github.com/google/wire v0.7.0
+	go.uber.org/zap v1.27.0
 )
 
 require (
@@ -36,7 +38,6 @@ require (
 	github.com/gofiber/utils/v2 v2.0.0-beta.8 // indirect
 	github.com/golang/mock v1.6.0 // indirect
 	github.com/google/s2a-go v0.1.9 // indirect
-	github.com/google/uuid v1.6.0 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.3.6 // indirect
 	github.com/googleapis/gax-go/v2 v2.14.2 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.2 // indirect
@@ -77,7 +78,6 @@ require (
 	go.opentelemetry.io/otel/trace v1.38.0 // indirect
 	go.opentelemetry.io/proto/otlp v1.7.1 // indirect
 	go.uber.org/multierr v1.10.0 // indirect
-	go.uber.org/zap v1.27.0 // indirect
 	golang.org/x/arch v0.0.0-20210923205945-b76863e36670 // indirect
 	golang.org/x/crypto v0.41.0 // indirect
 	golang.org/x/net v0.43.0 // indirect

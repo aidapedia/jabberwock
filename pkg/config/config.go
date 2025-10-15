@@ -1,6 +1,7 @@
 package config
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"os"
@@ -8,9 +9,9 @@ import (
 	"sync"
 
 	"github.com/aidapedia/gdk/config"
+	gsecret "github.com/aidapedia/gdk/config/secret"
 	"github.com/aidapedia/gdk/environment"
 	"github.com/aidapedia/jabberwock/pkg/config/model"
-	"github.com/aidapedia/jabberwock/pkg/config/secret"
 )
 
 // serviceConfig name of service config
@@ -30,15 +31,16 @@ var (
 
 var (
 	configFiles = []string{
-		"domea.main",
-		"domea.storage",
-		"domea.vendor",
+		"main",
+		"storage",
+		// "vendor",
 	}
 	configPaths = []string{
-		"../../files/etc/domea", // for service configuration
-		"/etc/domea",            // for service configuration in staging/production
-		"files/etc/domea",       // for database migration
+		"../../files/jabberwock", // for service configuration
+		"/jabberwock",            // for service configuration in staging/production
+		"files/jabberwock",       // for database migration
 	}
+	secretPath = "../../files/jabberwock/secret.json"
 )
 
 func GetConfig() *model.ServiceConfig {
@@ -51,23 +53,23 @@ func GetConfig() *model.ServiceConfig {
 }
 
 func setConfig(configInstances []configurationInstance) error {
+	var err error
+	// cold config
 	for _, conf := range configInstances {
-		err := config.NewConfig(conf.files, conf.key, conf.config).SetConfig()
+		err = config.NewConfig(conf.files, conf.key, conf.config).SetConfig()
 		if err != nil {
 			return err
 		}
 	}
 	// set secret config
-	secretConfig, err := secret.GetSecret()
+	var secret gsecret.Vault
+	if environment.GetAppEnvironment() == environment.Development {
+		secret = gsecret.NewSecretFile(secretPath)
+	}
+	err = secret.GetSecret(context.Background(), &globalConfig.Secret)
 	if err != nil {
 		return fmt.Errorf("failed to get secret: %s", err.Error())
 	}
-
-	globalConfig.Storage.PostgreSQL.Address = secretConfig.Database.Address
-	globalConfig.Storage.PostgreSQL.Port = secretConfig.Database.Port
-	globalConfig.Storage.PostgreSQL.Username = secretConfig.Database.Username
-	globalConfig.Storage.PostgreSQL.Password = secretConfig.Database.Password
-	globalConfig.Storage.PostgreSQL.Database = secretConfig.Database.Name
 	return nil
 }
 
@@ -95,16 +97,8 @@ func setInstances() error {
 func getFilesConfiguration(path string, files []string) config.FileConfig {
 	return config.FileConfig{
 		FilePath: filepath.Join(path, environment.GetAppEnvironment()),
-		Files:    getConfigFiles(files),
+		Files:    files,
 	}
-}
-
-func getConfigFiles(files []string) []string {
-	result := make([]string, 0, len(files))
-	for i := range files {
-		result = append(result, fmt.Sprintf("%s.%s", files[i], environment.GetAppEnvironment()))
-	}
-	return result
 }
 
 func getConfigurationInstances(cfg []config.FileConfig) []configurationInstance {

@@ -2,8 +2,6 @@ package jwt
 
 import (
 	"fmt"
-	"log"
-	"os"
 
 	"github.com/golang-jwt/jwt/v5"
 )
@@ -16,21 +14,9 @@ type JWTToken struct {
 
 var JWT JWTToken
 
-func InitJWTToken(privateKeyPath, publicKeyPath string) {
-	// Read private key from file
-	privateKey, err := os.ReadFile(privateKeyPath)
-	if err != nil {
-		log.Fatal(err)
-	}
-	// Read public key from file
-	publicKey, err := os.ReadFile(publicKeyPath)
-	if err != nil {
-		log.Fatal(err)
-	}
-
+func Init(privateKey string) {
 	JWT = JWTToken{
-		privateKey: privateKey,
-		publicKey:  publicKey,
+		privateKey: []byte(privateKey),
 	}
 }
 
