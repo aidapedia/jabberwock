@@ -36,11 +36,11 @@ var (
 		// "vendor",
 	}
 	configPaths = []string{
-		"../../files/jabberwock", // for service configuration
-		"/jabberwock",            // for service configuration in staging/production
-		"files/jabberwock",       // for database migration
+		"../../files/config", // for service configuration
+		"/config",            // for service configuration in staging/production
+		"files/config",       // for database migration
 	}
-	secretPath = "../../files/jabberwock/secret.json"
+	secretPath = "../../files/config/secret.json"
 )
 
 func GetConfig() *model.ServiceConfig {
