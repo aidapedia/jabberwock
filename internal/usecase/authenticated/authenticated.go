@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"strconv"
 	"strings"
 
 	gers "github.com/aidapedia/gdk/error"
@@ -17,8 +16,6 @@ import (
 	pkgLog "github.com/aidapedia/jabberwock/pkg/log"
 
 	sessionRepo "github.com/aidapedia/jabberwock/internal/repository/session"
-
-	"github.com/google/uuid"
 )
 
 // CheckAccessToken checks if the access token is valid
@@ -34,16 +31,12 @@ func (uc *Usecase) CheckAccessToken(ctx context.Context, req CheckAccessTokenPay
 	if !ok {
 		return gers.NewWithMetadata(errors.New("sub is empty"), pkgLog.Metadata(http.StatusUnauthorized, "Unauthorized"))
 	}
-	userID, err := strconv.ParseInt(fmt.Sprintf("%.0f", claims["jti"]), 10, 64)
-	if err != nil {
-		return gers.NewWithMetadata(err, pkgLog.Metadata(http.StatusUnauthorized, "Unauthorized"))
-	}
 	role, ok := claims["role"].(string)
 	if !ok {
 		return gers.NewWithMetadata(errors.New("role is empty"), pkgLog.Metadata(http.StatusUnauthorized, "Unauthorized"))
 	}
 
-	session, err := uc.sessionRepo.FindByAccessToken(ctx, tokenID, userID)
+	session, err := uc.sessionRepo.FindActiveSessionByTokenID(ctx, tokenID)
 	if err != nil {
 		if errors.Is(err, common.ErrNotFound) {
 			return gers.NewWithMetadata(err, pkgLog.Metadata(http.StatusForbidden, "Session not found"))
@@ -108,17 +101,16 @@ func (uc *Usecase) Login(ctx context.Context, req LoginRequest) (resp LoginRespo
 	}
 
 	// Generate token
-	subUUID := uuid.New()
-	accessToken, refreshToken, err := generateToken(user.ID, subUUID.String(), user.Type.String())
+	tokenResp, err := uc.generateToken(ctx, user.ID, user.Type.String())
 	if err != nil {
-		gers.NewWithMetadata(err,
+		return LoginResponse{}, gers.NewWithMetadata(err,
 			pkgLog.Metadata(http.StatusInternalServerError, common.ErrorMessageTryAgain))
 	}
 
 	// Save session to database
 	err = uc.sessionRepo.SetActiveSession(ctx, sessionRepo.Session{
 		UserID:    user.ID,
-		TokenID:   subUUID.String(),
+		TokenID:   tokenResp.ID,
 		UserAgent: req.UserAgent,
 		IP:        req.IP,
 	})
@@ -128,8 +120,8 @@ func (uc *Usecase) Login(ctx context.Context, req LoginRequest) (resp LoginRespo
 
 	return LoginResponse{
 		TokenType:    "Bearer",
-		AccessToken:  accessToken,
-		RefreshToken: refreshToken,
+		AccessToken:  tokenResp.AccessToken,
+		RefreshToken: tokenResp.RefreshToken,
 		User: userRepo.User{
 			ID:              user.ID,
 			Name:            user.Name,
@@ -138,4 +130,26 @@ func (uc *Usecase) Login(ctx context.Context, req LoginRequest) (resp LoginRespo
 			IsPhoneVerified: user.IsPhoneVerified,
 		},
 	}, nil
+}
+
+func (uc *Usecase) Logout(ctx context.Context, req LogoutRequest) (err error) {
+	span, ctx := tracer.StartSpanFromContext(ctx, "AuthUsecase/Logout")
+	defer span.Finish(err)
+
+	claims, err := pkgJWT.VerifyToken(strings.TrimPrefix(req.Token, "Bearer "))
+	if err != nil {
+		return gers.NewWithMetadata(err, pkgLog.Metadata(http.StatusUnauthorized, "Unauthorized"))
+	}
+
+	tokenID, ok := claims["sub"].(string)
+	if !ok {
+		return gers.NewWithMetadata(errors.New("sub is empty"), pkgLog.Metadata(http.StatusUnauthorized, "Unauthorized"))
+	}
+
+	err = uc.sessionRepo.DeleteActiveSession(ctx, tokenID)
+	if err != nil {
+		return gers.NewWithMetadata(err, pkgLog.Metadata(http.StatusInternalServerError, common.ErrorMessageTryAgain))
+	}
+
+	return nil
 }

@@ -4,6 +4,12 @@ import (
 	userRepo "github.com/aidapedia/jabberwock/internal/repository/user"
 )
 
+type TokenResponse struct {
+	ID           string
+	AccessToken  string
+	RefreshToken string
+}
+
 type CheckAccessTokenPayload struct {
 	Token     string
 	ElementID string
@@ -22,4 +28,8 @@ type LoginResponse struct {
 	AccessToken  string
 	RefreshToken string
 	User         userRepo.User
+}
+
+type LogoutRequest struct {
+	Token string
 }

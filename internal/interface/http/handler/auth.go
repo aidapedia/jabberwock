@@ -37,3 +37,18 @@ func (h *Handler) Login(c fiber.Ctx) error {
 	ghttp.JSONResponse(c, resp, nil)
 	return nil
 }
+
+func (h *Handler) Logout(c fiber.Ctx) error {
+	span, ctx := tracer.StartSpanFromContext(c.Context(), "AuthHandler/Logout")
+	defer span.Finish(nil)
+
+	if err := h.usecase.Logout(ctx, authenticated.LogoutRequest{
+		Token: string(c.Request().Header.Peek("Authorization")),
+	}); err != nil {
+		ghttp.JSONResponse(c, nil, err)
+		return err
+	}
+
+	ghttp.JSONResponse(c, nil, nil)
+	return nil
+}

@@ -6,8 +6,12 @@ func (r *Repository) SetActiveSession(ctx context.Context, session Session) erro
 	return nil
 }
 
-func (r *Repository) FindByAccessToken(ctx context.Context, accessToken string, userID int64) (Session, error) {
+func (r *Repository) FindActiveSessionByTokenID(ctx context.Context, tokenID string) (Session, error) {
 	return Session{}, nil
+}
+
+func (r *Repository) DeleteActiveSession(ctx context.Context, tokenID string) error {
+	return nil
 }
 
 func (r *Repository) GetLoginAttempt(ctx context.Context, userID int64) (LoginAttempt, error) {

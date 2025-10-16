@@ -15,15 +15,19 @@ import (
 
 func main() {
 	ctx := context.Background()
+
 	// Initialize config
 	cfg := config.GetConfig()
+
 	// Initialize logger
 	log.New(&log.Config{
 		Level: log.LoggerLevel(cfg.App.Log.Level),
 	})
 	defer log.Sync()
+
 	// Initialize JWT Token
 	jwt.Init(cfg.Secret.Auth.PrivateKey)
+
 	// Initialize tracer
 	tr, err := tracer.InitTracer(cfg.App.Name, cfg.Secret.Tracer.AddressURL, false)
 	if err != nil {
@@ -31,12 +35,14 @@ func main() {
 		os.Exit(0)
 	}
 	defer tr.Shutdown(ctx)
+
 	// Set timezone
 	loc, err := time.LoadLocation(cfg.App.LocalTime)
 	if err != nil {
 		loc = time.Local
 	}
 	time.Local = loc
+
 	// Initialize HTTP server
 	err = app.InitHTTPServer().ListenAndServe()
 	if err != nil {

@@ -3,9 +3,8 @@ package session
 import "time"
 
 type Session struct {
-	ID        string
-	UserID    int64
 	TokenID   string
+	UserID    int64
 	UserAgent string
 	IP        string
 }

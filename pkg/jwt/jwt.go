@@ -9,7 +9,7 @@ import (
 // JWTToken is a struct that holds the private and public keys
 type JWTToken struct {
 	privateKey []byte
-	publicKey  []byte
+	validator  jwt.Validator
 }
 
 var JWT JWTToken
@@ -17,6 +17,9 @@ var JWT JWTToken
 func Init(privateKey string) {
 	JWT = JWTToken{
 		privateKey: []byte(privateKey),
+		validator: *jwt.NewValidator(
+			jwt.WithExpirationRequired(),
+		),
 	}
 }
 
@@ -39,7 +42,7 @@ func SignToken(body map[string]interface{}) (string, error) {
 // VerifyToken verifies a token using a public key
 func VerifyToken(token string) (map[string]interface{}, error) {
 	// Parse the private key
-	publicKey, err := jwt.ParseRSAPublicKeyFromPEM(JWT.publicKey)
+	privateKey, err := jwt.ParseRSAPublicKeyFromPEM(JWT.privateKey)
 	if err != nil {
 		return nil, fmt.Errorf("error parsing private key: %v", err)
 	}
@@ -48,8 +51,13 @@ func VerifyToken(token string) (map[string]interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
-		return publicKey, nil
+		return privateKey, nil
 	})
+	if err != nil {
+		return nil, err
+	}
+
+	err = JWT.validator.Validate(tok.Claims)
 	if err != nil {
 		return nil, err
 	}
