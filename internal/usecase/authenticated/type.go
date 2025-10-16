@@ -10,7 +10,7 @@ type CheckAccessTokenPayload struct {
 }
 
 type LoginRequest struct {
-	Phone    string
+	Identity string
 	Password string
 
 	IP        string

@@ -7,4 +7,5 @@ import (
 
 func Register(app *fiber.App, handler *handler.Handler) {
 	app.Post("/login", handler.Login)
+	app.Get("/ping", handler.Ping)
 }

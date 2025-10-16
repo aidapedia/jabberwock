@@ -7,6 +7,7 @@ import (
 	"github.com/aidapedia/jabberwock/internal/interface/http/handler"
 	"github.com/aidapedia/jabberwock/internal/interface/http/route"
 	"github.com/aidapedia/jabberwock/pkg/config"
+	"github.com/gofiber/fiber/v3"
 )
 
 // HTTPServiceInterface is an interface to handle http service
@@ -22,8 +23,11 @@ type HTTPService struct {
 
 // NewHTTPService is a function to create a new http service
 func NewHTTPService(handler *handler.Handler) HTTPServiceInterface {
-	svr, _ := server.NewWithDefaultConfig()
+	svr, _ := server.NewWithDefaultConfig(server.WithMiddlewares(func(c fiber.Ctx) error {
+		return c.SendStatus(404) // => 404 "Not Found"
+	}))
 	route.Register(svr.GetFiberApp(), handler)
+
 	return &HTTPService{
 		svr: svr,
 	}

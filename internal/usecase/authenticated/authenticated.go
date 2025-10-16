@@ -10,6 +10,7 @@ import (
 
 	gers "github.com/aidapedia/gdk/error"
 	"github.com/aidapedia/gdk/telemetry/tracer"
+	gvalidation "github.com/aidapedia/gdk/validation"
 	"github.com/aidapedia/jabberwock/internal/common"
 	userRepo "github.com/aidapedia/jabberwock/internal/repository/user"
 	pkgJWT "github.com/aidapedia/jabberwock/pkg/jwt"
@@ -80,8 +81,17 @@ func (uc *Usecase) Login(ctx context.Context, req LoginRequest) (resp LoginRespo
 	span, ctx := tracer.StartSpanFromContext(ctx, "AuthUsecase/Login")
 	defer span.Finish(err)
 
-	user, err := uc.userRepo.FindByPhone(ctx, req.Phone)
+	// Check if user identity is email or phone number
+	var user userRepo.User
+	if gvalidation.IsEmail(req.Identity) {
+		user, err = uc.userRepo.FindByEmail(ctx, req.Identity)
+	} else {
+		user, err = uc.userRepo.FindByPhone(ctx, req.Identity)
+	}
 	if err != nil {
+		if errors.Is(err, common.ErrNotFound) {
+			return LoginResponse{}, gers.NewWithMetadata(err, pkgLog.Metadata(http.StatusInternalServerError, "We cannot find your account"))
+		}
 		return LoginResponse{}, gers.NewWithMetadata(err, pkgLog.Metadata(http.StatusInternalServerError, common.ErrorMessageTryAgain))
 	}
 
@@ -123,7 +133,7 @@ func (uc *Usecase) Login(ctx context.Context, req LoginRequest) (resp LoginRespo
 		User: userRepo.User{
 			ID:              user.ID,
 			Name:            user.Name,
-			ImageURL:        "https://i.imghippo.com/files/wSZE2700kcI.webp", // TODO: improve this with real avatar
+			ImageURL:        user.ImageURL,
 			Phone:           user.Phone,
 			IsPhoneVerified: user.IsPhoneVerified,
 		},
