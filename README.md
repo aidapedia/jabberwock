@@ -1,6 +1,6 @@
 
 <h1 align="center">
-  <img src="https://i.ibb.co.com/TDRjbvX1/1da958aa-1e70-4204-90b5-2b6a01108515.png" alt="Jabberwock" width="200">
+  <img src="https://raw.githubusercontent.com/aidapedia/jabberwock/refs/heads/main/logo.png" alt="Jabberwock" width="200">
   <br>
   Jabberwock
   <br>
