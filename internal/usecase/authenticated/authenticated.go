@@ -52,8 +52,8 @@ func (uc *Usecase) CheckAccessToken(ctx context.Context, req CheckAccessTokenPay
 		return gers.NewWithMetadata(err, pkgLog.Metadata(http.StatusInternalServerError, "Internal Server Error"))
 	}
 
-	if !user.IsPhoneVerified {
-		return gers.NewWithMetadata(fmt.Errorf("user is not verified by phone"), pkgLog.Metadata(http.StatusForbidden, "Your phone number is not verified"))
+	if err := uc.validateUser(user); err != nil {
+		return err
 	}
 
 	method, path := ParseElementID(req.ElementID)
@@ -123,11 +123,11 @@ func (uc *Usecase) Login(ctx context.Context, req LoginRequest) (resp LoginRespo
 		AccessToken:  tokenResp.AccessToken,
 		RefreshToken: tokenResp.RefreshToken,
 		User: userRepo.User{
-			ID:              user.ID,
-			Name:            user.Name,
-			ImageURL:        user.ImageURL,
-			Phone:           user.Phone,
-			IsPhoneVerified: user.IsPhoneVerified,
+			ID:         user.ID,
+			Name:       user.Name,
+			AvatarURL:  user.AvatarURL,
+			Phone:      user.Phone,
+			IsVerified: user.IsVerified,
 		},
 	}, nil
 }

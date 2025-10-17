@@ -1,16 +1,28 @@
 package user
 
 type User struct {
-	ID              int64
-	Name            string
-	Password        string
-	Email           string
-	ImageURL        string
-	Phone           string
-	IsPhoneVerified bool
-	Status          Status
-	Type            Type
+	ID         int64
+	Name       string
+	Password   string
+	Email      string
+	AvatarURL  string
+	Phone      string
+	IsVerified Verified
+	Status     Status
+	Type       Type
 }
+
+type Verified uint64
+
+// Binary representation of verification status
+// VerifiedNone  = 0000
+// VerifiedPhone = 0001
+// VerifiedEmail = 0010
+const (
+	VerifiedNone  Verified = 0
+	VerifiedPhone Verified = 1
+	VerifiedEmail Verified = 2
+)
 
 type Status int8
 

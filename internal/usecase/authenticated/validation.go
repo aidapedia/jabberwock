@@ -43,9 +43,9 @@ func (a *Usecase) validateUser(user userRepo.User) error {
 		return gers.NewWithMetadata(errors.New("account is blocked"),
 			pkgLog.Metadata(http.StatusBadRequest, "Your account is blocked"))
 	}
-	if !user.IsPhoneVerified {
-		return gers.NewWithMetadata(errors.New("phone number is not verified"),
-			pkgLog.Metadata(http.StatusBadRequest, "Please verify your phone number first"))
+	if user.IsVerified == userRepo.VerifiedNone {
+		return gers.NewWithMetadata(errors.New("account is not verified"),
+			pkgLog.Metadata(http.StatusBadRequest, "Please verify your identity first"))
 	}
 	return nil
 }
