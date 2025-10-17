@@ -1,0 +1,58 @@
+version: '3.4'
+services:
+# App Service
+  redis:
+    image: 'redis:alpine'
+    hostname: redis
+    ports:
+      - '6379:6379'
+    networks: # Networks to join (Services on the same network can communicate with each other using their name)
+      - backend
+  postgres:
+    image: 'postgres:9.6.23-alpine3.14'
+    hostname: postgres
+    ports:
+      - '5432:5432'
+    environment:
+      - POSTGRES_USER=jabberwock-user
+      - POSTGRES_PASSWORD=jabberwock-password
+      - POSTGRES_DB=jabberwock
+      - TZ=Asia/Jakarta
+      - PGTZ=Asia/Jakarta
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - ./development/database/:/var/lib/postgresql/data/pgdata
+    networks: # Networks to join (Services on the same network can communicate with each other using their name)
+      - backend
+  nsqlookupd:
+    image: 'nsqio/nsq:v1.2.1'
+    hostname: nsqlookupd
+    command: /nsqlookupd
+    ports:
+      - '4160:4160'
+      - '4161:4161'
+    networks: # Networks to join (Services on the same network can communicate with each other using their name)
+      - backend
+  nsqd:
+    image: 'nsqio/nsq:v1.2.1'
+    hostname: nsqd
+    command: '/nsqd --lookupd-tcp-address=nsqlookupd:4160'
+    depends_on:
+      - nsqlookupd
+    ports:
+      - '4150:4150'
+      - '4151:4151'
+    networks: # Networks to join (Services on the same network can communicate with each other using their name)
+      - backend
+  nsqadmin:
+    image: 'nsqio/nsq:v1.2.1'
+    hostname: nsqadmin
+    command: '/nsqadmin --lookupd-http-address=nsqlookupd:4161'
+    depends_on:
+      - nsqlookupd
+    ports:
+      - '4171:4171'
+    networks: # Networks to join (Services on the same network can communicate with each other using their name)
+      - backend
+networks:
+  backend: 
