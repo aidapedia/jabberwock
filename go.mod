@@ -4,7 +4,7 @@ go 1.24.2
 
 require (
 	cloud.google.com/go/secretmanager v1.15.0
-	github.com/aidapedia/gdk v0.0.3-0.20251016033958-6baa20a92807
+	github.com/aidapedia/gdk v0.0.3-0.20251023133727-bdc83096dc6e
 	github.com/casbin/casbin/v2 v2.127.0
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/gofiber/fiber/v3 v3.0.0-beta.4
