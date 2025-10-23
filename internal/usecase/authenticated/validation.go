@@ -41,11 +41,11 @@ func (a *Usecase) validationPassword(ctx context.Context, user userRepo.User, pa
 func (a *Usecase) validateUser(user userRepo.User) error {
 	if user.Status == userRepo.StatusBlocked {
 		return gers.NewWithMetadata(errors.New("account is blocked"),
-			pkgLog.Metadata(http.StatusBadRequest, "Your account is blocked"))
+			pkgLog.Metadata(http.StatusForbidden, "Your account is blocked, please contact administrator."))
 	}
 	if user.IsVerified == userRepo.VerifiedNone {
 		return gers.NewWithMetadata(errors.New("account is not verified"),
-			pkgLog.Metadata(http.StatusBadRequest, "Please verify your identity first"))
+			pkgLog.Metadata(http.StatusForbidden, "Please verify your identity first"))
 	}
 	return nil
 }

@@ -49,7 +49,7 @@ func (uc *Usecase) CheckAccessToken(ctx context.Context, req CheckAccessTokenPay
 		if errors.Is(err, common.ErrNotFound) {
 			return gers.NewWithMetadata(err, pkgLog.Metadata(http.StatusForbidden, "User not found"))
 		}
-		return gers.NewWithMetadata(err, pkgLog.Metadata(http.StatusInternalServerError, "Internal Server Error"))
+		return gers.NewWithMetadata(err, pkgLog.Metadata(http.StatusInternalServerError, common.ErrorMessageTryAgain))
 	}
 
 	if err := uc.validateUser(user); err != nil {
