@@ -9,7 +9,6 @@ import (
 	"github.com/aidapedia/gdk/telemetry/tracer"
 	"github.com/aidapedia/jabberwock/internal/app"
 	"github.com/aidapedia/jabberwock/pkg/config"
-	"github.com/aidapedia/jabberwock/pkg/jwt"
 	"go.uber.org/zap"
 )
 
@@ -24,9 +23,6 @@ func main() {
 		Level: log.LoggerLevel(cfg.App.Log.Level),
 	})
 	defer log.Sync()
-
-	// Initialize JWT Token
-	jwt.Init(cfg.Secret.Auth.PrivateKey)
 
 	// Initialize tracer
 	tr, err := tracer.InitTracer(cfg.App.Name, cfg.Secret.Tracer.AddressURL, false)

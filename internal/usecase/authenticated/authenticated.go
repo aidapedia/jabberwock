@@ -27,9 +27,9 @@ func (uc *Usecase) CheckAccessToken(ctx context.Context, req CheckAccessTokenPay
 	if err != nil {
 		return gers.NewWithMetadata(err, pkgLog.Metadata(http.StatusUnauthorized, "Unauthorized"))
 	}
-	tokenID, ok := claims["sub"].(string)
+	tokenID, ok := claims["jti"].(string)
 	if !ok {
-		return gers.NewWithMetadata(errors.New("sub is empty"), pkgLog.Metadata(http.StatusUnauthorized, "Unauthorized"))
+		return gers.NewWithMetadata(errors.New("jti is empty"), pkgLog.Metadata(http.StatusUnauthorized, "Unauthorized"))
 	}
 	role, ok := claims["role"].(string)
 	if !ok {

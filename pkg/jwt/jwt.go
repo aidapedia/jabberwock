@@ -1,8 +1,10 @@
 package jwt
 
 import (
+	"context"
 	"fmt"
 
+	"github.com/aidapedia/jabberwock/pkg/config"
 	"github.com/golang-jwt/jwt/v5"
 )
 
@@ -14,9 +16,10 @@ type JWTToken struct {
 
 var JWT JWTToken
 
-func Init(privateKey string) {
+func init() {
+	cfg := config.GetConfig(context.Background())
 	JWT = JWTToken{
-		privateKey: []byte(privateKey),
+		privateKey: []byte(cfg.Secret.Auth.PrivateKey),
 		validator: *jwt.NewValidator(
 			jwt.WithExpirationRequired(),
 		),
