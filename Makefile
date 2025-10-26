@@ -16,3 +16,7 @@ database-down:
 
 database-reset:
 	go run ./pkg/migration/main.go -method=reset
+
+generate_key:
+	@chmod +x ./scripts/generate_private_key.sh
+	@./scripts/generate_private_key.sh
