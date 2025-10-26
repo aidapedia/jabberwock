@@ -2,10 +2,15 @@ version: '3.4'
 services:
 # App Service
   redis:
-    image: 'redis:alpine'
+    image: redis:latest
     hostname: redis
     ports:
       - '6379:6379'
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     networks: # Networks to join (Services on the same network can communicate with each other using their name)
       - backend
   postgres:

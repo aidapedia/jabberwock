@@ -11,7 +11,9 @@
             "mode": "auto",
             "program": "${workspaceFolder}/cmd/http/main.go",
             "env": {
-                "APP_ENV": "development"
+                "APP_ENV": "development",
+                "CONFIG_FILE_PATH": "../../files/config/development",
+                "SECRET_FILE_PATH": "../../files/config/secret.json",
             },
             "cwd": "${workspaceFolder}/cmd/http"
         }

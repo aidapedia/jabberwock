@@ -17,7 +17,7 @@ func main() {
 	ctx := context.Background()
 
 	// Initialize config
-	cfg := config.GetConfig()
+	cfg := config.GetConfig(ctx)
 
 	// Initialize logger
 	log.New(&log.Config{

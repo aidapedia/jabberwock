@@ -2,115 +2,57 @@ package config
 
 import (
 	"context"
-	"fmt"
 	"log"
-	"os"
-	"path/filepath"
 	"sync"
 
-	"github.com/aidapedia/gdk/config"
-	gsecret "github.com/aidapedia/gdk/config/secret"
-	"github.com/aidapedia/gdk/environment"
+	gconfig "github.com/aidapedia/gdk/config"
+	genv "github.com/aidapedia/gdk/environment"
 	"github.com/aidapedia/jabberwock/pkg/config/model"
 )
 
-// serviceConfig name of service config
-const serviceConfig = "ServiceConfig"
-
-// Configuration Instances
-type configurationInstance struct {
-	files  []config.FileConfig
-	key    string
-	config interface{}
-}
-
 var (
 	globalConfig = &model.ServiceConfig{}
+	secretConfig = &model.SecretConfig{}
 	doOnce       = sync.Once{}
 )
 
-var (
-	configFiles = []string{
-		"main",
-		"storage",
-		// "vendor",
-	}
-	configPaths = []string{
-		"../../files/config", // for service configuration
-		"/config",            // for service configuration in staging/production
-		"files/config",       // for database migration
-	}
-	secretPath = "../../files/config/secret.json"
-)
+var configManager *gconfig.Manager
 
-func GetConfig() *model.ServiceConfig {
+func init() {
+	secretType := gconfig.SecretTypeFile
+	if genv.GetAppEnvironment() != genv.Development {
+		secretType = gconfig.SecretTypeGSM
+	}
+	configManager = gconfig.New(gconfig.Option{
+		TargetStore: globalConfig,
+		ConfigKey:   "ServiceConfig",
+		FileName: []string{
+			"main",
+			"storage",
+		},
+		WithSecret:   secretType,
+		TargetSecret: secretConfig,
+	})
+}
+
+func GetConfig(ctx context.Context) *model.ServiceConfig {
 	doOnce.Do(func() {
-		if err := setInstances(); err != nil {
+		if err := configManager.SetConfig(ctx); err != nil {
 			log.Fatalf("Error setting config: %v", err)
 		}
 	})
-	return getInstance()
+	res, _ := configManager.GetConfig(ctx)
+	cfg := res.(*model.ServiceConfig)
+	cfg.Secret = *getSecret(ctx)
+	return cfg
 }
 
-func setConfig(configInstances []configurationInstance) error {
-	var err error
-	// cold config
-	for _, conf := range configInstances {
-		err = config.NewConfig(conf.files, conf.key, conf.config).SetConfig()
-		if err != nil {
-			return err
+func getSecret(ctx context.Context) *model.SecretConfig {
+	doOnce.Do(func() {
+		if err := configManager.SetSecretStore(ctx); err != nil {
+			log.Fatalf("Error setting config: %v", err)
 		}
-	}
-	// set secret config
-	var secret gsecret.Vault
-	if environment.GetAppEnvironment() == environment.Development {
-		secret = gsecret.NewSecretFile(secretPath)
-	}
-	err = secret.GetSecret(context.Background(), &globalConfig.Secret)
-	if err != nil {
-		return fmt.Errorf("failed to get secret: %s", err.Error())
-	}
-	return nil
-}
-
-func setInstances() error {
-	var configs []config.FileConfig
-	for i := range configPaths {
-		cfg := getFilesConfiguration(configPaths[i], configFiles)
-		if _, err := os.Stat(cfg.FilePath); os.IsNotExist(err) {
-			continue
-		}
-		configs = append([]config.FileConfig{}, cfg)
-	}
-	if len(configs) == 0 {
-		return fmt.Errorf("no configuration file found")
-	}
-
-	configInstances := getConfigurationInstances(configs)
-	err := setConfig(configInstances)
-	if err != nil {
-		return err
-	}
-	return err
-}
-
-func getFilesConfiguration(path string, files []string) config.FileConfig {
-	return config.FileConfig{
-		FilePath: filepath.Join(path, environment.GetAppEnvironment()),
-		Files:    files,
-	}
-}
-
-func getConfigurationInstances(cfg []config.FileConfig) []configurationInstance {
-	return []configurationInstance{
-		{
-			files:  cfg,
-			key:    serviceConfig,
-			config: globalConfig,
-		},
-	}
-}
-
-func getInstance() *model.ServiceConfig {
-	return globalConfig
+	})
+	res, _ := configManager.GetSecret(ctx)
+	return res.(*model.SecretConfig)
 }

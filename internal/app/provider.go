@@ -1,6 +1,7 @@
 package app
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"log"
@@ -17,18 +18,20 @@ import (
 	gredisengine "github.com/aidapedia/gdk/cache/engine"
 	casbin "github.com/casbin/casbin/v2"
 	casbinUtil "github.com/casbin/casbin/v2/util"
-	goredis "github.com/go-redis/redis/v8"
 	"github.com/google/wire"
+	goredis "github.com/redis/go-redis/v9"
 )
 
 func redisProvider() gredisengine.Interface {
-	cfg := config.GetConfig()
+	cfg := config.GetConfig(context.Background())
 	if cfg == nil {
 		log.Fatalf("failed to connect redis: %v", errors.New("config is nil"))
 	}
 
-	redis, err := gredisengine.NewGoRedisClient(&goredis.Options{
-		Addr: fmt.Sprintf("%s:%d", cfg.Storage.Redis.Address, cfg.Storage.Redis.Port),
+	redis, err := gredisengine.NewGoRedisClient(gredisengine.GoRedisClientOpt{
+		Opt: &goredis.Options{
+			Addr: fmt.Sprintf("%s:%d", cfg.Storage.Redis.Address, cfg.Storage.Redis.Port),
+		},
 	})
 	if err != nil {
 		log.Fatalf("failed to connect redis: %v", err)
@@ -39,7 +42,7 @@ func redisProvider() gredisengine.Interface {
 
 // ProviderCasbin is a function to create a new casbin enforcer
 func casbinProvider() *casbin.Enforcer {
-	cfg := config.GetConfig()
+	cfg := config.GetConfig(context.Background())
 	authEnforcer, err := casbin.NewEnforcer(cfg.App.Auth.ModelPath, cfg.App.Auth.PolicyPath)
 	if err != nil {
 		log.Fatal(err)

@@ -3,16 +3,15 @@ module github.com/aidapedia/jabberwock
 go 1.24.2
 
 require (
-	cloud.google.com/go/secretmanager v1.15.0
-	github.com/aidapedia/gdk v0.0.3-0.20251023133727-bdc83096dc6e
+	github.com/aidapedia/gdk v0.0.3-0.20251026064805-98bd7e2a8b0a
 	github.com/casbin/casbin/v2 v2.127.0
-	github.com/go-redis/redis/v8 v8.11.5
 	github.com/gofiber/fiber/v3 v3.0.0-beta.4
 	github.com/golang-jwt/jwt/v5 v5.3.0
 	github.com/golang-migrate/migrate/v4 v4.19.0
 	github.com/google/uuid v1.6.0
 	github.com/google/wire v0.7.0
 	github.com/lib/pq v1.10.9
+	github.com/redis/go-redis/v9 v9.16.0
 	go.uber.org/zap v1.27.0
 )
 
@@ -21,6 +20,7 @@ require (
 	cloud.google.com/go/auth/oauth2adapt v0.2.8 // indirect
 	cloud.google.com/go/compute/metadata v0.7.0 // indirect
 	cloud.google.com/go/iam v1.5.2 // indirect
+	cloud.google.com/go/secretmanager v1.15.0 // indirect
 	github.com/andybalholm/brotli v1.1.1 // indirect
 	github.com/bmatcuk/doublestar/v4 v4.6.1 // indirect
 	github.com/bytedance/sonic v1.13.3 // indirect
@@ -56,6 +56,8 @@ require (
 	github.com/pelletier/go-toml/v2 v2.1.0 // indirect
 	github.com/philhofer/fwd v1.1.3-0.20240916144458-20a13a1f6b7c // indirect
 	github.com/power-devops/perfstat v0.0.0-20210106213030-5aafc221ea8c // indirect
+	github.com/redis/go-redis/extra/rediscmd/v9 v9.16.0 // indirect
+	github.com/redis/go-redis/extra/redisotel/v9 v9.16.0 // indirect
 	github.com/shirou/gopsutil/v3 v3.24.5 // indirect
 	github.com/spf13/afero v1.11.0 // indirect
 	github.com/spf13/cast v1.6.0 // indirect

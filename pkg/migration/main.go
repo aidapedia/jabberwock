@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"flag"
@@ -24,7 +25,7 @@ func main() {
 	seed := flag.String("seed", "0", "seeding data, 0 for all seed")
 	flag.Parse()
 	// Initialize Config
-	cfg := config.GetConfig()
+	cfg := config.GetConfig(context.Background())
 	dbConfig := cfg.Storage.PostgreSQL
 
 	db, err := sql.Open("postgres", dbConfig.GetDatabaseURL("postgres"))
