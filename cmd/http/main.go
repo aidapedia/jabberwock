@@ -20,7 +20,11 @@ func main() {
 
 	// Initialize logger
 	log.New(&log.Config{
-		Level: log.LoggerLevel(cfg.App.Log.Level),
+		Level:  log.LoggerLevel(cfg.App.Log.Level),
+		Caller: true,
+		DefaultTags: map[string]interface{}{
+			"app": cfg.App.Name,
+		},
 	})
 	defer log.Sync()
 
@@ -33,6 +37,7 @@ func main() {
 	defer tr.Shutdown(ctx)
 
 	// Set timezone
+	// This catch case like if your server on Singapore Datacenter but you wanna local time to UTC you have to set manually.
 	loc, err := time.LoadLocation(cfg.App.LocalTime)
 	if err != nil {
 		loc = time.Local

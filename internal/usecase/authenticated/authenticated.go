@@ -52,7 +52,7 @@ func (uc *Usecase) CheckAccessToken(ctx context.Context, req CheckAccessTokenPay
 		return gers.NewWithMetadata(err, pkgLog.Metadata(http.StatusInternalServerError, common.ErrorMessageTryAgain))
 	}
 
-	if err := uc.validateUser(user); err != nil {
+	if err = uc.validateUser(user); err != nil {
 		return err
 	}
 
@@ -118,18 +118,8 @@ func (uc *Usecase) Login(ctx context.Context, req LoginRequest) (resp LoginRespo
 		return LoginResponse{}, gers.NewWithMetadata(err, pkgLog.Metadata(http.StatusInternalServerError, common.ErrorMessageTryAgain))
 	}
 
-	return LoginResponse{
-		TokenType:    "Bearer",
-		AccessToken:  tokenResp.AccessToken,
-		RefreshToken: tokenResp.RefreshToken,
-		User: userRepo.User{
-			ID:         user.ID,
-			Name:       user.Name,
-			AvatarURL:  user.AvatarURL,
-			Phone:      user.Phone,
-			IsVerified: user.IsVerified,
-		},
-	}, nil
+	resp.Transform(tokenResp, user)
+	return resp, nil
 }
 
 func (uc *Usecase) Logout(ctx context.Context, req LogoutRequest) (err error) {
@@ -141,9 +131,9 @@ func (uc *Usecase) Logout(ctx context.Context, req LogoutRequest) (err error) {
 		return gers.NewWithMetadata(err, pkgLog.Metadata(http.StatusUnauthorized, "Unauthorized"))
 	}
 
-	tokenID, ok := claims["sub"].(string)
+	tokenID, ok := claims["jti"].(string)
 	if !ok {
-		return gers.NewWithMetadata(errors.New("sub is empty"), pkgLog.Metadata(http.StatusUnauthorized, "Unauthorized"))
+		return gers.NewWithMetadata(errors.New("jti is empty"), pkgLog.Metadata(http.StatusUnauthorized, "Unauthorized"))
 	}
 
 	err = uc.sessionRepo.DeleteActiveSession(ctx, tokenID)

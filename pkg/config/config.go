@@ -11,8 +11,7 @@ import (
 )
 
 var (
-	globalConfig = &model.ServiceConfig{}
-	secretConfig = &model.SecretConfig{}
+	globalConfig = model.ServiceConfig{}
 	doOnce       = sync.Once{}
 )
 
@@ -24,14 +23,14 @@ func init() {
 		secretType = gconfig.SecretTypeGSM
 	}
 	configManager = gconfig.New(gconfig.Option{
-		TargetStore: globalConfig,
+		TargetStore: &globalConfig,
 		ConfigKey:   "ServiceConfig",
 		FileName: []string{
 			"main",
 			"storage",
 		},
 		WithSecret:   secretType,
-		TargetSecret: secretConfig,
+		TargetSecret: &globalConfig.Secret,
 	})
 	doOnce.Do(func() {
 		if err := configManager.SetConfig(context.Background()); err != nil {
@@ -44,13 +43,5 @@ func init() {
 }
 
 func GetConfig(ctx context.Context) *model.ServiceConfig {
-	res, _ := configManager.GetConfig(ctx)
-	cfg := res.(*model.ServiceConfig)
-	cfg.Secret = *getSecret(ctx)
-	return cfg
-}
-
-func getSecret(ctx context.Context) *model.SecretConfig {
-	res, _ := configManager.GetSecret(ctx)
-	return res.(*model.SecretConfig)
+	return &globalConfig
 }

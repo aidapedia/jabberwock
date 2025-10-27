@@ -6,6 +6,7 @@ import (
 
 type TokenResponse struct {
 	ID           string
+	Type         string
 	AccessToken  string
 	RefreshToken string
 }
@@ -28,6 +29,13 @@ type LoginResponse struct {
 	AccessToken  string
 	RefreshToken string
 	User         userRepo.User
+}
+
+func (e *LoginResponse) Transform(token TokenResponse, user userRepo.User) {
+	e.TokenType = token.Type
+	e.AccessToken = token.AccessToken
+	e.RefreshToken = token.RefreshToken
+	e.User = user
 }
 
 type LogoutRequest struct {
