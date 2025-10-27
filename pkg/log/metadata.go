@@ -3,12 +3,12 @@ package log
 import (
 	"net/http"
 
-	"github.com/aidapedia/jabberwock/internal/common"
+	cerror "github.com/aidapedia/jabberwock/internal/common/error"
 )
 
 func Metadata(code int, message string) map[string]interface{} {
 	if message == "" {
-		message = common.ErrorMessageTryAgain
+		message = cerror.ErrorMessageTryAgain.Error()
 	}
 	if code == 0 {
 		code = http.StatusInternalServerError

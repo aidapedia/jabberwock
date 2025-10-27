@@ -8,7 +8,7 @@ import (
 	"time"
 
 	gers "github.com/aidapedia/gdk/error"
-	constant "github.com/aidapedia/jabberwock/internal/common/constant"
+	cerror "github.com/aidapedia/jabberwock/internal/common/error"
 	sessionRepo "github.com/aidapedia/jabberwock/internal/repository/session"
 	userRepo "github.com/aidapedia/jabberwock/internal/repository/user"
 	pkgLog "github.com/aidapedia/jabberwock/pkg/log"
@@ -29,7 +29,7 @@ func (a *Usecase) checkAttemptFailed(ctx context.Context, user userRepo.User) (i
 	loginResp, err := a.sessionRepo.GetLoginAttempt(ctx, user.ID)
 	if err != nil {
 		return -1, gers.NewWithMetadata(err,
-			pkgLog.Metadata(http.StatusInternalServerError, constant.ErrorMessageTryAgain))
+			pkgLog.Metadata(http.StatusInternalServerError, cerror.ErrorMessageTryAgain.Error()))
 	}
 	if loginResp.Attempt == 0 {
 		return loginResp.Attempt, nil
@@ -41,7 +41,7 @@ func (a *Usecase) checkAttemptFailed(ctx context.Context, user userRepo.User) (i
 		err = a.userRepo.UpdateStatus(ctx, user.ID, user.Status)
 		if err != nil {
 			return 0, gers.NewWithMetadata(err,
-				pkgLog.Metadata(http.StatusInternalServerError, constant.ErrorMessageTryAgain))
+				pkgLog.Metadata(http.StatusInternalServerError, cerror.ErrorMessageTryAgain.Error()))
 		}
 		return 0, gers.NewWithMetadata(errors.New("max attempt login reached"),
 			pkgLog.Metadata(http.StatusBadRequest, "Max attempt reached, we have blocked your account"))
@@ -56,7 +56,7 @@ func (a *Usecase) checkAttemptFailed(ctx context.Context, user userRepo.User) (i
 	})
 	if err != nil {
 		return 0, gers.NewWithMetadata(err,
-			pkgLog.Metadata(http.StatusInternalServerError, constant.ErrorMessageTryAgain))
+			pkgLog.Metadata(http.StatusInternalServerError, cerror.ErrorMessageTryAgain.Error()))
 	}
 
 	if blockTime.After(now) {
@@ -74,7 +74,7 @@ func (a *Usecase) updateAttemptFailed(ctx context.Context, user userRepo.User, a
 		err = a.userRepo.UpdateStatus(ctx, user.ID, user.Status)
 		if err != nil {
 			return gers.NewWithMetadata(err,
-				pkgLog.Metadata(http.StatusInternalServerError, constant.ErrorMessageTryAgain))
+				pkgLog.Metadata(http.StatusInternalServerError, cerror.ErrorMessageTryAgain.Error()))
 		}
 		return gers.NewWithMetadata(errors.New("max attempt login reached"),
 			pkgLog.Metadata(http.StatusBadRequest, "Max attempt reached, we have blocked your account"))
@@ -87,7 +87,7 @@ func (a *Usecase) updateAttemptFailed(ctx context.Context, user userRepo.User, a
 	})
 	if err != nil {
 		return gers.NewWithMetadata(err,
-			pkgLog.Metadata(http.StatusInternalServerError, constant.ErrorMessageTryAgain))
+			pkgLog.Metadata(http.StatusInternalServerError, cerror.ErrorMessageTryAgain.Error()))
 	}
 	return nil
 }
@@ -100,7 +100,7 @@ func (a *Usecase) resetAttemptFailed(ctx context.Context, userID int64) error {
 	})
 	if err != nil {
 		return gers.NewWithMetadata(err,
-			pkgLog.Metadata(http.StatusInternalServerError, constant.ErrorMessageTryAgain))
+			pkgLog.Metadata(http.StatusInternalServerError, cerror.ErrorMessageTryAgain.Error()))
 	}
 	return nil
 }

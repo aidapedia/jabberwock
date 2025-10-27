@@ -10,7 +10,7 @@ import (
 	gers "github.com/aidapedia/gdk/error"
 	"github.com/aidapedia/gdk/telemetry/tracer"
 	gvalidation "github.com/aidapedia/gdk/validation"
-	"github.com/aidapedia/jabberwock/internal/common"
+	cerror "github.com/aidapedia/jabberwock/internal/common/error"
 	userRepo "github.com/aidapedia/jabberwock/internal/repository/user"
 	pkgJWT "github.com/aidapedia/jabberwock/pkg/jwt"
 	pkgLog "github.com/aidapedia/jabberwock/pkg/log"
@@ -38,7 +38,7 @@ func (uc *Usecase) CheckAccessToken(ctx context.Context, req CheckAccessTokenPay
 
 	session, err := uc.sessionRepo.FindActiveSessionByTokenID(ctx, tokenID)
 	if err != nil {
-		if errors.Is(err, common.ErrNotFound) {
+		if errors.Is(err, cerror.ErrorNotFound) {
 			return gers.NewWithMetadata(err, pkgLog.Metadata(http.StatusForbidden, "Session not found"))
 		}
 		return gers.NewWithMetadata(err, pkgLog.Metadata(http.StatusInternalServerError, "Internal Server Error"))
@@ -46,10 +46,10 @@ func (uc *Usecase) CheckAccessToken(ctx context.Context, req CheckAccessTokenPay
 
 	user, err := uc.userRepo.FindByID(ctx, session.UserID)
 	if err != nil {
-		if errors.Is(err, common.ErrNotFound) {
+		if errors.Is(err, cerror.ErrorNotFound) {
 			return gers.NewWithMetadata(err, pkgLog.Metadata(http.StatusForbidden, "User not found"))
 		}
-		return gers.NewWithMetadata(err, pkgLog.Metadata(http.StatusInternalServerError, common.ErrorMessageTryAgain))
+		return gers.NewWithMetadata(err, pkgLog.Metadata(http.StatusInternalServerError, cerror.ErrorMessageTryAgain.Error()))
 	}
 
 	if err = uc.validateUser(user); err != nil {
@@ -82,10 +82,10 @@ func (uc *Usecase) Login(ctx context.Context, req LoginRequest) (resp LoginRespo
 		user, err = uc.userRepo.FindByPhone(ctx, req.Identity)
 	}
 	if err != nil {
-		if errors.Is(err, common.ErrNotFound) {
+		if errors.Is(err, cerror.ErrorNotFound) {
 			return LoginResponse{}, gers.NewWithMetadata(err, pkgLog.Metadata(http.StatusInternalServerError, "We cannot find your account"))
 		}
-		return LoginResponse{}, gers.NewWithMetadata(err, pkgLog.Metadata(http.StatusInternalServerError, common.ErrorMessageTryAgain))
+		return LoginResponse{}, gers.NewWithMetadata(err, pkgLog.Metadata(http.StatusInternalServerError, cerror.ErrorMessageTryAgain.Error()))
 	}
 
 	// Check if user phone number is already verified
@@ -104,7 +104,7 @@ func (uc *Usecase) Login(ctx context.Context, req LoginRequest) (resp LoginRespo
 	tokenResp, err := uc.generateToken(ctx, user.ID, user.Type.String())
 	if err != nil {
 		return LoginResponse{}, gers.NewWithMetadata(err,
-			pkgLog.Metadata(http.StatusInternalServerError, common.ErrorMessageTryAgain))
+			pkgLog.Metadata(http.StatusInternalServerError, cerror.ErrorMessageTryAgain.Error()))
 	}
 
 	// Save session to database
@@ -115,7 +115,7 @@ func (uc *Usecase) Login(ctx context.Context, req LoginRequest) (resp LoginRespo
 		IP:        req.IP,
 	})
 	if err != nil {
-		return LoginResponse{}, gers.NewWithMetadata(err, pkgLog.Metadata(http.StatusInternalServerError, common.ErrorMessageTryAgain))
+		return LoginResponse{}, gers.NewWithMetadata(err, pkgLog.Metadata(http.StatusInternalServerError, cerror.ErrorMessageTryAgain.Error()))
 	}
 
 	resp.Transform(tokenResp, user)
@@ -138,7 +138,7 @@ func (uc *Usecase) Logout(ctx context.Context, req LogoutRequest) (err error) {
 
 	err = uc.sessionRepo.DeleteActiveSession(ctx, tokenID)
 	if err != nil {
-		return gers.NewWithMetadata(err, pkgLog.Metadata(http.StatusInternalServerError, common.ErrorMessageTryAgain))
+		return gers.NewWithMetadata(err, pkgLog.Metadata(http.StatusInternalServerError, cerror.ErrorMessageTryAgain.Error()))
 	}
 
 	return nil
