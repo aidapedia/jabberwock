@@ -33,14 +33,17 @@ func init() {
 		WithSecret:   secretType,
 		TargetSecret: secretConfig,
 	})
-}
-
-func GetConfig(ctx context.Context) *model.ServiceConfig {
 	doOnce.Do(func() {
-		if err := configManager.SetConfig(ctx); err != nil {
+		if err := configManager.SetConfig(context.Background()); err != nil {
+			log.Fatalf("Error setting config: %v", err)
+		}
+		if err := configManager.SetSecretStore(context.Background()); err != nil {
 			log.Fatalf("Error setting config: %v", err)
 		}
 	})
+}
+
+func GetConfig(ctx context.Context) *model.ServiceConfig {
 	res, _ := configManager.GetConfig(ctx)
 	cfg := res.(*model.ServiceConfig)
 	cfg.Secret = *getSecret(ctx)
@@ -48,11 +51,6 @@ func GetConfig(ctx context.Context) *model.ServiceConfig {
 }
 
 func getSecret(ctx context.Context) *model.SecretConfig {
-	doOnce.Do(func() {
-		if err := configManager.SetSecretStore(ctx); err != nil {
-			log.Fatalf("Error setting config: %v", err)
-		}
-	})
 	res, _ := configManager.GetSecret(ctx)
 	return res.(*model.SecretConfig)
 }
