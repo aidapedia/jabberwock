@@ -5,6 +5,7 @@ init:
 
 # runs wire
 wire:
+	@chmod +x ./scripts/wire.sh
 	@./scripts/wire.sh
 
 # runs database migrations
