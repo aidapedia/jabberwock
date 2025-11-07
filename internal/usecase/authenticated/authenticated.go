@@ -8,12 +8,12 @@ import (
 	"strings"
 
 	gers "github.com/aidapedia/gdk/error"
+	ghttp "github.com/aidapedia/gdk/http"
 	"github.com/aidapedia/gdk/telemetry/tracer"
 	gvalidation "github.com/aidapedia/gdk/validation"
 	cerror "github.com/aidapedia/jabberwock/internal/common/error"
 	userRepo "github.com/aidapedia/jabberwock/internal/repository/user"
 	pkgJWT "github.com/aidapedia/jabberwock/pkg/jwt"
-	pkgLog "github.com/aidapedia/jabberwock/pkg/log"
 
 	sessionRepo "github.com/aidapedia/jabberwock/internal/repository/session"
 )
@@ -25,31 +25,31 @@ func (uc *Usecase) CheckAccessToken(ctx context.Context, req CheckAccessTokenPay
 
 	claims, err := pkgJWT.VerifyToken(strings.TrimPrefix(string(req.Token), "Bearer "))
 	if err != nil {
-		return gers.NewWithMetadata(err, pkgLog.Metadata(http.StatusUnauthorized, "Unauthorized"))
+		return gers.NewWithMetadata(err, ghttp.Metadata(http.StatusUnauthorized, "Unauthorized"))
 	}
 	tokenID, ok := claims["jti"].(string)
 	if !ok {
-		return gers.NewWithMetadata(errors.New("jti is empty"), pkgLog.Metadata(http.StatusUnauthorized, "Unauthorized"))
+		return gers.NewWithMetadata(errors.New("jti is empty"), ghttp.Metadata(http.StatusUnauthorized, "Unauthorized"))
 	}
 	role, ok := claims["role"].(string)
 	if !ok {
-		return gers.NewWithMetadata(errors.New("role is empty"), pkgLog.Metadata(http.StatusUnauthorized, "Unauthorized"))
+		return gers.NewWithMetadata(errors.New("role is empty"), ghttp.Metadata(http.StatusUnauthorized, "Unauthorized"))
 	}
 
 	session, err := uc.sessionRepo.FindActiveSessionByTokenID(ctx, tokenID)
 	if err != nil {
 		if errors.Is(err, cerror.ErrorNotFound) {
-			return gers.NewWithMetadata(err, pkgLog.Metadata(http.StatusForbidden, "Session not found"))
+			return gers.NewWithMetadata(err, ghttp.Metadata(http.StatusForbidden, "Session not found"))
 		}
-		return gers.NewWithMetadata(err, pkgLog.Metadata(http.StatusInternalServerError, "Internal Server Error"))
+		return gers.NewWithMetadata(err, ghttp.Metadata(http.StatusInternalServerError, "Internal Server Error"))
 	}
 
 	user, err := uc.userRepo.FindByID(ctx, session.UserID)
 	if err != nil {
 		if errors.Is(err, cerror.ErrorNotFound) {
-			return gers.NewWithMetadata(err, pkgLog.Metadata(http.StatusForbidden, "User not found"))
+			return gers.NewWithMetadata(err, ghttp.Metadata(http.StatusForbidden, "User not found"))
 		}
-		return gers.NewWithMetadata(err, pkgLog.Metadata(http.StatusInternalServerError, cerror.ErrorMessageTryAgain.Error()))
+		return gers.NewWithMetadata(err, ghttp.Metadata(http.StatusInternalServerError, cerror.ErrorMessageTryAgain.Error()))
 	}
 
 	if err = uc.validateUser(user); err != nil {
@@ -59,11 +59,11 @@ func (uc *Usecase) CheckAccessToken(ctx context.Context, req CheckAccessTokenPay
 	method, path := ParseElementID(req.ElementID)
 	result, err := uc.enforcer.Enforce(role, method, path)
 	if err != nil {
-		return gers.NewWithMetadata(err, pkgLog.Metadata(http.StatusUnauthorized, "Unauthorized"))
+		return gers.NewWithMetadata(err, ghttp.Metadata(http.StatusUnauthorized, "Unauthorized"))
 	}
 
 	if !result {
-		return gers.NewWithMetadata(fmt.Errorf("user %d is not authorized to access %s", user.ID, req.ElementID), pkgLog.Metadata(http.StatusUnauthorized, "Unauthorized"))
+		return gers.NewWithMetadata(fmt.Errorf("user %d is not authorized to access %s", user.ID, req.ElementID), ghttp.Metadata(http.StatusUnauthorized, "Unauthorized"))
 	}
 
 	return nil
@@ -83,9 +83,9 @@ func (uc *Usecase) Login(ctx context.Context, req LoginRequest) (resp LoginRespo
 	}
 	if err != nil {
 		if errors.Is(err, cerror.ErrorNotFound) {
-			return LoginResponse{}, gers.NewWithMetadata(err, pkgLog.Metadata(http.StatusInternalServerError, "We cannot find your account"))
+			return LoginResponse{}, gers.NewWithMetadata(err, ghttp.Metadata(http.StatusInternalServerError, "We cannot find your account"))
 		}
-		return LoginResponse{}, gers.NewWithMetadata(err, pkgLog.Metadata(http.StatusInternalServerError, cerror.ErrorMessageTryAgain.Error()))
+		return LoginResponse{}, gers.NewWithMetadata(err, ghttp.Metadata(http.StatusInternalServerError, cerror.ErrorMessageTryAgain.Error()))
 	}
 
 	// Check if user phone number is already verified
@@ -104,7 +104,7 @@ func (uc *Usecase) Login(ctx context.Context, req LoginRequest) (resp LoginRespo
 	tokenResp, err := uc.generateToken(ctx, user.ID, user.Type.String())
 	if err != nil {
 		return LoginResponse{}, gers.NewWithMetadata(err,
-			pkgLog.Metadata(http.StatusInternalServerError, cerror.ErrorMessageTryAgain.Error()))
+			ghttp.Metadata(http.StatusInternalServerError, cerror.ErrorMessageTryAgain.Error()))
 	}
 
 	// Save session to database
@@ -115,7 +115,7 @@ func (uc *Usecase) Login(ctx context.Context, req LoginRequest) (resp LoginRespo
 		IP:        req.IP,
 	})
 	if err != nil {
-		return LoginResponse{}, gers.NewWithMetadata(err, pkgLog.Metadata(http.StatusInternalServerError, cerror.ErrorMessageTryAgain.Error()))
+		return LoginResponse{}, gers.NewWithMetadata(err, ghttp.Metadata(http.StatusInternalServerError, cerror.ErrorMessageTryAgain.Error()))
 	}
 
 	resp.Transform(tokenResp, user)
@@ -128,17 +128,17 @@ func (uc *Usecase) Logout(ctx context.Context, req LogoutRequest) (err error) {
 
 	claims, err := pkgJWT.VerifyToken(strings.TrimPrefix(req.Token, "Bearer "))
 	if err != nil {
-		return gers.NewWithMetadata(err, pkgLog.Metadata(http.StatusUnauthorized, "Unauthorized"))
+		return gers.NewWithMetadata(err, ghttp.Metadata(http.StatusUnauthorized, "Unauthorized"))
 	}
 
 	tokenID, ok := claims["jti"].(string)
 	if !ok {
-		return gers.NewWithMetadata(errors.New("jti is empty"), pkgLog.Metadata(http.StatusUnauthorized, "Unauthorized"))
+		return gers.NewWithMetadata(errors.New("jti is empty"), ghttp.Metadata(http.StatusUnauthorized, "Unauthorized"))
 	}
 
 	err = uc.sessionRepo.DeleteActiveSession(ctx, tokenID)
 	if err != nil {
-		return gers.NewWithMetadata(err, pkgLog.Metadata(http.StatusInternalServerError, cerror.ErrorMessageTryAgain.Error()))
+		return gers.NewWithMetadata(err, ghttp.Metadata(http.StatusInternalServerError, cerror.ErrorMessageTryAgain.Error()))
 	}
 
 	return nil

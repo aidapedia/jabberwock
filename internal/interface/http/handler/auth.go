@@ -10,8 +10,6 @@ import (
 	gers "github.com/aidapedia/gdk/error"
 	ghttp "github.com/aidapedia/gdk/http"
 	"github.com/aidapedia/gdk/telemetry/tracer"
-
-	pkgLog "github.com/aidapedia/jabberwock/pkg/log"
 )
 
 func (h *Handler) Login(c fiber.Ctx) error {
@@ -23,7 +21,7 @@ func (h *Handler) Login(c fiber.Ctx) error {
 		resp model.LoginResponse
 	)
 	if err := c.Bind().Body(&req); err != nil {
-		ghttp.JSONResponse(c, nil, gers.NewWithMetadata(err, pkgLog.Metadata(http.StatusBadRequest, "Bad Request")))
+		ghttp.JSONResponse(c, nil, gers.NewWithMetadata(err, ghttp.Metadata(http.StatusBadRequest, "Bad Request")))
 		return err
 	}
 

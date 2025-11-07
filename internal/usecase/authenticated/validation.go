@@ -5,8 +5,8 @@ import (
 	"errors"
 	"net/http"
 
+	ghttp "github.com/aidapedia/gdk/http"
 	userRepo "github.com/aidapedia/jabberwock/internal/repository/user"
-	pkgLog "github.com/aidapedia/jabberwock/pkg/log"
 
 	gcryptography "github.com/aidapedia/gdk/cryptography"
 	gers "github.com/aidapedia/gdk/error"
@@ -27,7 +27,7 @@ func (a *Usecase) validationPassword(ctx context.Context, user userRepo.User, pa
 		if err != nil {
 			return err
 		}
-		return gers.NewWithMetadata(errors.New("password is incorrect"), pkgLog.Metadata(http.StatusBadRequest, "Password is incorrect"))
+		return gers.NewWithMetadata(errors.New("password is incorrect"), ghttp.Metadata(http.StatusBadRequest, "Password is incorrect"))
 	}
 	// Success login will reset attempt login
 	err = a.resetAttemptFailed(ctx, user.ID)
@@ -41,11 +41,11 @@ func (a *Usecase) validationPassword(ctx context.Context, user userRepo.User, pa
 func (a *Usecase) validateUser(user userRepo.User) error {
 	if user.Status == userRepo.StatusBlocked {
 		return gers.NewWithMetadata(errors.New("account is blocked"),
-			pkgLog.Metadata(http.StatusForbidden, "Your account is blocked, please contact administrator."))
+			ghttp.Metadata(http.StatusForbidden, "Your account is blocked, please contact administrator."))
 	}
 	if user.IsVerified == userRepo.VerifiedNone {
 		return gers.NewWithMetadata(errors.New("account is not verified"),
-			pkgLog.Metadata(http.StatusForbidden, "Please verify your identity first"))
+			ghttp.Metadata(http.StatusForbidden, "Please verify your identity first"))
 	}
 	return nil
 }
