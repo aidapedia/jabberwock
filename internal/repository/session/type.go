@@ -3,10 +3,14 @@ package session
 import "time"
 
 type Session struct {
-	TokenID   string
+	ID        int64
+	Token     string
 	UserID    int64
 	UserAgent string
 	IP        string
+
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 type LoginAttempt struct {

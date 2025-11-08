@@ -45,7 +45,7 @@ func main() {
 	time.Local = loc
 
 	// Initialize HTTP server
-	err = app.InitHTTPServer().ListenAndServe()
+	err = app.InitHTTPServer(ctx).ListenAndServe()
 	if err != nil {
 		log.ErrorCtx(ctx, "Failed to initialize tracer", zap.Error(err))
 		os.Exit(0)

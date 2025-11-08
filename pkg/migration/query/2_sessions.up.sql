@@ -1,0 +1,11 @@
+CREATE TABLE IF NOT EXISTS sessions(
+   "id" BIGSERIAL PRIMARY KEY,
+   "user_id" BIGINT NOT NULL,
+   "token" VARCHAR NOT NULL,
+   "user_agent" VARCHAR NOT NULL,
+   "ip" VARCHAR NOT NULL,
+   "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+   "updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS sessions_token_key ON sessions (token);

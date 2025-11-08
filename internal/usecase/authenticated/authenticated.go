@@ -108,9 +108,9 @@ func (uc *Usecase) Login(ctx context.Context, req LoginRequest) (resp LoginRespo
 	}
 
 	// Save session to database
-	err = uc.sessionRepo.SetActiveSession(ctx, sessionRepo.Session{
+	err = uc.sessionRepo.CreateActiveSession(ctx, &sessionRepo.Session{
 		UserID:    user.ID,
-		TokenID:   tokenResp.ID,
+		Token:     tokenResp.ID,
 		UserAgent: req.UserAgent,
 		IP:        req.IP,
 	})

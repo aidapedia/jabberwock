@@ -2,12 +2,13 @@ package session
 
 import (
 	"context"
+	"database/sql"
 
 	gredisengine "github.com/aidapedia/gdk/cache/engine"
 )
 
 type Interface interface {
-	SetActiveSession(ctx context.Context, session Session) error
+	CreateActiveSession(ctx context.Context, session *Session) error
 	FindActiveSessionByTokenID(ctx context.Context, tokenID string) (Session, error)
 	DeleteActiveSession(ctx context.Context, tokenID string) error
 
@@ -16,11 +17,13 @@ type Interface interface {
 }
 
 type Repository struct {
-	redis gredisengine.Interface
+	database *sql.DB
+	redis    gredisengine.Interface
 }
 
-func New(redis gredisengine.Interface) Interface {
+func New(database *sql.DB, redis gredisengine.Interface) Interface {
 	return &Repository{
-		redis: redis,
+		database: database,
+		redis:    redis,
 	}
 }

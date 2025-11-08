@@ -6,11 +6,13 @@
 package app
 
 import (
+	"context"
+
 	"github.com/aidapedia/jabberwock/internal/interface/http"
 	"github.com/google/wire"
 )
 
-func InitHTTPServer() http.HTTPServiceInterface {
+func InitHTTPServer(ctx context.Context) http.HTTPServiceInterface {
 	wire.Build(httpSet)
 	return &http.HTTPService{}
 }

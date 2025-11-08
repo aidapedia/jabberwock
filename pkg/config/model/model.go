@@ -9,7 +9,7 @@ type SecretConfig struct {
 		Name     string `json:"name"`
 		Username string `json:"username"`
 		Password string `json:"password"`
-		Address  string `json:"address"`
+		Host     string `json:"host"`
 		Port     int    `json:"port"`
 	} `json:"database"`
 	Tracer struct {

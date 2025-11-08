@@ -11,15 +11,53 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-func (r *Repository) SetActiveSession(ctx context.Context, session Session) error {
+func (r *Repository) CreateActiveSession(ctx context.Context, session *Session) (err error) {
+	span, ctx := tracer.StartSpanFromContext(ctx, "SessionRepository/CreateActiveSession")
+	defer span.Finish(err)
+
+	if session == nil {
+		err = fmt.Errorf("insert data request is nil")
+		return err
+	}
+
+	query := queryCreateActiveSession
+	args := []interface{}{session.Token, session.UserID, session.UserAgent, session.IP, time.Now(), time.Now()}
+
+	err = r.database.QueryRowContext(ctx, query, args...).Scan(&session.ID)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
-func (r *Repository) FindActiveSessionByTokenID(ctx context.Context, tokenID string) (Session, error) {
-	return Session{}, nil
+func (r *Repository) FindActiveSessionByTokenID(ctx context.Context, tokenID string) (resp Session, err error) {
+	span, ctx := tracer.StartSpanFromContext(ctx, "SessionRepository/FindActiveSessionByTokenID")
+	defer span.Finish(err)
+
+	query := queryFindActiveSessionByTokenID
+	args := []interface{}{tokenID}
+
+	err = r.database.QueryRowContext(ctx, query, args...).Scan(&resp.ID, &resp.UserID, &resp.UserAgent, &resp.IP, &resp.CreatedAt, &resp.UpdatedAt)
+	if err != nil {
+		return resp, err
+	}
+
+	return resp, nil
 }
 
-func (r *Repository) DeleteActiveSession(ctx context.Context, tokenID string) error {
+func (r *Repository) DeleteActiveSession(ctx context.Context, tokenID string) (err error) {
+	span, ctx := tracer.StartSpanFromContext(ctx, "SessionRepository/DeleteActiveSession")
+	defer span.Finish(err)
+
+	query := queryDeleteActiveSessionByTokenID
+	args := []interface{}{tokenID}
+
+	_, err = r.database.ExecContext(ctx, query, args...)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 

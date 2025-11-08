@@ -26,9 +26,12 @@ func main() {
 	flag.Parse()
 	// Initialize Config
 	cfg := config.GetConfig(context.Background())
-	dbConfig := cfg.Storage.PostgreSQL
+	dbConfig := cfg.Secret.Database
 
-	db, err := sql.Open("postgres", dbConfig.GetDatabaseURL("postgres"))
+	dbURL := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
+		dbConfig.Host, dbConfig.Port, dbConfig.Username, dbConfig.Password, dbConfig.Name)
+
+	db, err := sql.Open("postgres", dbURL)
 	if err != nil {
 		log.Fatal(fmt.Errorf("failed to open database: %w", err))
 	}
@@ -46,7 +49,7 @@ func main() {
 	// Initialize Migration
 	m, err := migrate.NewWithDatabaseInstance(
 		"file://pkg/database_migration/query",
-		dbConfig.Database, driver)
+		dbConfig.Name, driver)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -65,19 +68,19 @@ func main() {
 	var methodName string
 	switch *method {
 	case "up":
-		if err := m.Up(); err != nil {
+		if err = m.Up(); err != nil {
 			m.Force(int(version))
 			log.Fatal(err)
 		}
 		methodName = "upgrade"
 	case "down":
-		if err := m.Steps(-1); err != nil {
+		if err = m.Steps(-1); err != nil {
 			m.Force(int(version))
 			log.Fatal(err)
 		}
 		methodName = "down"
 	case "reset":
-		if err := m.Down(); err != nil {
+		if err = m.Down(); err != nil {
 			m.Force(int(version))
 			log.Fatal(err)
 		}

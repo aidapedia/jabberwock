@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"fmt"
 	"log"
@@ -22,8 +23,33 @@ import (
 	goredis "github.com/redis/go-redis/v9"
 )
 
-func redisProvider() gredisengine.Interface {
-	cfg := config.GetConfig(context.Background())
+var DatabaseDriver *sql.DB
+
+func databaseProvider(ctx context.Context) *sql.DB {
+	cfg := config.GetConfig(ctx)
+	if cfg == nil {
+		log.Fatalf("failed to connect database: %v", errors.New("config is nil"))
+	}
+
+	dsn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
+		cfg.Secret.Database.Host, cfg.Secret.Database.Port, cfg.Secret.Database.Username, cfg.Secret.Database.Password, cfg.Secret.Database.Name)
+
+	db, err := sql.Open("postgres", dsn)
+	if err != nil {
+		log.Fatalf("failed to connect database: %v", err)
+	}
+
+	err = db.Ping()
+	if err != nil {
+		log.Fatalf("failed to connect database: %v", err)
+	}
+
+	DatabaseDriver = db
+	return db
+}
+
+func redisProvider(ctx context.Context) gredisengine.Interface {
+	cfg := config.GetConfig(ctx)
 	if cfg == nil {
 		log.Fatalf("failed to connect redis: %v", errors.New("config is nil"))
 	}
@@ -41,8 +67,8 @@ func redisProvider() gredisengine.Interface {
 }
 
 // ProviderCasbin is a function to create a new casbin enforcer
-func casbinProvider() *casbin.Enforcer {
-	cfg := config.GetConfig(context.Background())
+func casbinProvider(ctx context.Context) *casbin.Enforcer {
+	cfg := config.GetConfig(ctx)
 	authEnforcer, err := casbin.NewEnforcer(cfg.App.Auth.ModelPath, cfg.App.Auth.PolicyPath)
 	if err != nil {
 		log.Fatal(err)
@@ -55,6 +81,7 @@ var (
 	driverSet = wire.NewSet(
 		redisProvider,
 		casbinProvider,
+		databaseProvider,
 	)
 
 	repositorySet = wire.NewSet(
