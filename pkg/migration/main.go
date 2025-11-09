@@ -48,7 +48,7 @@ func main() {
 
 	// Initialize Migration
 	m, err := migrate.NewWithDatabaseInstance(
-		"file://pkg/database_migration/query",
+		"file://query",
 		dbConfig.Name, driver)
 	if err != nil {
 		log.Fatal(err)
@@ -99,7 +99,7 @@ func main() {
 func runSeed(dbCli *sql.DB, seed int) {
 	seedFile := make(map[string]string)
 	// Get All files on folder seed
-	root := "./pkg/database_migration/seed" // Current directory, can be changed to your folder path
+	root := "./pkg/migration/seed" // Current directory, can be changed to your folder path
 	err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err

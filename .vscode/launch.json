@@ -64,6 +64,23 @@
                 "SECRET_FILE_PATH": "../../files/config/secret.json",
             },
             "cwd": "${workspaceFolder}/pkg/migration"
+        },
+        {
+            "name": "SEED ALL - Database Migration",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/pkg/migration/main.go",
+            "args": [
+                "--method=seed",
+                "--seed=0"
+            ],
+            "env": {
+                "APP_ENV": "development",
+                "CONFIG_FILE_PATH": "../../files/config/development",
+                "SECRET_FILE_PATH": "../../files/config/secret.json",
+            },
+            "cwd": "${workspaceFolder}/pkg/migration"
         }
     ]
 }
