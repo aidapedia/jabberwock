@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS users(
    "email" VARCHAR (50) NOT NULL,
    "phone" VARCHAR (20) NOT NULL,
    "is_verified" BIGINT DEFAULT 0,
+   "status" SMALLINT DEFAULT 0,
    "avatar_url" VARCHAR ,
    "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
    "updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP

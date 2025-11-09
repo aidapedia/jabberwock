@@ -9,6 +9,7 @@ import (
 
 	httpInterface "github.com/aidapedia/jabberwock/internal/interface/http"
 	"github.com/aidapedia/jabberwock/internal/interface/http/handler"
+	"github.com/aidapedia/jabberwock/internal/interface/http/middleware"
 	"github.com/aidapedia/jabberwock/pkg/config"
 
 	sessionRepo "github.com/aidapedia/jabberwock/internal/repository/session"
@@ -20,7 +21,9 @@ import (
 	casbin "github.com/casbin/casbin/v2"
 	casbinUtil "github.com/casbin/casbin/v2/util"
 	"github.com/google/wire"
+	_ "github.com/lib/pq"
 	goredis "github.com/redis/go-redis/v9"
+	goredismaint "github.com/redis/go-redis/v9/maintnotifications"
 )
 
 var DatabaseDriver *sql.DB
@@ -57,6 +60,9 @@ func redisProvider(ctx context.Context) gredisengine.Interface {
 	redis, err := gredisengine.NewGoRedisClient(gredisengine.GoRedisClientOpt{
 		Opt: &goredis.Options{
 			Addr: fmt.Sprintf("%s:%d", cfg.Storage.Redis.Address, cfg.Storage.Redis.Port),
+			MaintNotificationsConfig: &goredismaint.Config{
+				Mode: goredismaint.ModeDisabled,
+			},
 		},
 	})
 	if err != nil {
@@ -97,6 +103,7 @@ var (
 		driverSet,
 		repositorySet,
 		usecaseSet,
+		middleware.NewMiddleware,
 		handler.NewHandler,
 		httpInterface.NewHTTPService,
 	)

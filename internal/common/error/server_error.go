@@ -1,6 +1,9 @@
 package error
 
-import "errors"
+import (
+	"database/sql"
+	"errors"
+)
 
 var (
 	ErrorMessageTryAgain = errors.New("Oops, something went wrong. Please try again later.")
@@ -8,5 +11,5 @@ var (
 
 // DB Error
 var (
-	ErrorNotFound = errors.New("not found")
+	ErrorNotFound = sql.ErrNoRows
 )

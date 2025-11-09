@@ -1,5 +1,7 @@
 package user
 
+import "time"
+
 type User struct {
 	ID         int64
 	Name       string
@@ -10,6 +12,13 @@ type User struct {
 	IsVerified Verified
 	Status     Status
 	Type       Type
+
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
+func (u User) IsEmpty() bool {
+	return u.ID == 0
 }
 
 type Verified uint64

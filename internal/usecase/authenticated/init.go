@@ -12,6 +12,7 @@ type Interface interface {
 	CheckAccessToken(ctx context.Context, req CheckAccessTokenPayload) error
 	Login(ctx context.Context, req LoginRequest) (resp LoginResponse, err error)
 	Logout(ctx context.Context, req LogoutRequest) error
+	Register(ctx context.Context, req RegisterRequest) error
 }
 
 type Usecase struct {

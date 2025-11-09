@@ -5,3 +5,7 @@ import authUcesace "github.com/aidapedia/jabberwock/internal/usecase/authenticat
 type Middleware struct {
 	authenticatedUC authUcesace.Interface
 }
+
+func NewMiddleware(authenticatedUC authUcesace.Interface) *Middleware {
+	return &Middleware{authenticatedUC: authenticatedUC}
+}

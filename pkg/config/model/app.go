@@ -20,6 +20,12 @@ type App struct {
 		Port int
 	}
 
+	// Feature Flags
+	// TODO(next:release): since this is hot config, we should use something like etcd or consul to store this config.
+	FeatureFlags struct {
+		UseTracer bool
+	}
+
 	Auth struct {
 		Issuer     string
 		ModelPath  string

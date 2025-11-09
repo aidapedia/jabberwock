@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strings"
 
+	gcrypto "github.com/aidapedia/gdk/cryptography"
 	gers "github.com/aidapedia/gdk/error"
 	ghttp "github.com/aidapedia/gdk/http"
 	"github.com/aidapedia/gdk/telemetry/tracer"
@@ -83,7 +84,7 @@ func (uc *Usecase) Login(ctx context.Context, req LoginRequest) (resp LoginRespo
 	}
 	if err != nil {
 		if errors.Is(err, cerror.ErrorNotFound) {
-			return LoginResponse{}, gers.NewWithMetadata(err, ghttp.Metadata(http.StatusInternalServerError, "We cannot find your account"))
+			return LoginResponse{}, gers.NewWithMetadata(err, ghttp.Metadata(http.StatusInternalServerError, "Cannot find your account."))
 		}
 		return LoginResponse{}, gers.NewWithMetadata(err, ghttp.Metadata(http.StatusInternalServerError, cerror.ErrorMessageTryAgain.Error()))
 	}
@@ -142,4 +143,55 @@ func (uc *Usecase) Logout(ctx context.Context, req LogoutRequest) (err error) {
 	}
 
 	return nil
+}
+
+// Register is a function to handle register
+func (uc *Usecase) Register(ctx context.Context, req RegisterRequest) (err error) {
+	span, ctx := tracer.StartSpanFromContext(ctx, "AuthUsecase/Register")
+	defer span.Finish(err)
+
+	// Check if user is already exist
+	identities := []string{req.Email, req.Phone}
+	for _, identity := range identities {
+		var exist bool
+		exist, err = uc.isExistUser(ctx, identity)
+		if err != nil {
+			return gers.NewWithMetadata(err,
+				ghttp.Metadata(http.StatusInternalServerError, cerror.ErrorMessageTryAgain.Error()))
+		}
+		if exist {
+			return gers.NewWithMetadata(errors.New("user already exist"),
+				ghttp.Metadata(http.StatusBadRequest, "Phone number is already registered"))
+		}
+	}
+	// Create user
+	err = uc.userRepo.CreateUser(ctx, &userRepo.User{
+		Name:     req.Name,
+		Phone:    req.Phone,
+		Password: gcrypto.Hash(req.Password),
+		Type:     userRepo.TypeUser,
+		Status:   userRepo.StatusActive,
+	})
+	if err != nil {
+		return gers.NewWithMetadata(err,
+			ghttp.Metadata(http.StatusInternalServerError, cerror.ErrorMessageTryAgain.Error()))
+	}
+
+	return nil
+}
+
+func (uc *Usecase) isExistUser(ctx context.Context, identity string) (bool, error) {
+	var (
+		user userRepo.User
+		err  error
+	)
+	if gvalidation.IsEmail(identity) {
+		user, err = uc.userRepo.FindByEmail(ctx, identity)
+	} else {
+		user, err = uc.userRepo.FindByPhone(ctx, identity)
+	}
+	if err != nil {
+		return false, gers.NewWithMetadata(err, ghttp.Metadata(http.StatusInternalServerError, cerror.ErrorMessageTryAgain.Error()))
+	}
+	return !user.IsEmpty(), nil
 }
