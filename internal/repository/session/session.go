@@ -8,6 +8,7 @@ import (
 
 	"github.com/aidapedia/gdk/telemetry/tracer"
 	"github.com/aidapedia/jabberwock/internal/common/cache"
+	"github.com/bytedance/sonic"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -69,7 +70,7 @@ func (r *Repository) GetLoginAttempt(ctx context.Context, userID int64) (result 
 	val, err := r.redis.GET(ctx, key)
 	if err != nil {
 		if err == redis.Nil {
-			return result, err
+			return result, nil
 		}
 		return LoginAttempt{}, err
 	}
@@ -87,5 +88,13 @@ func (r *Repository) SetLoginAttempt(ctx context.Context, userID int64, loginAtt
 	defer span.Finish(err)
 
 	key := fmt.Sprintf(cache.RedisKeyLoginAttempt, userID)
-	return r.redis.SET(ctx, key, loginAttempt, time.Until(loginAttempt.RefreshTime))
+	loginAttemptJSON, err := sonic.MarshalString(loginAttempt)
+	if err != nil {
+		return err
+	}
+	err = r.redis.SET(ctx, key, loginAttemptJSON, time.Until(loginAttempt.RefreshTime))
+	if err != nil {
+		return err
+	}
+	return nil
 }

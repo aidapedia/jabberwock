@@ -3,18 +3,18 @@ package model
 // SecretConfig is the configuration for the secret
 type SecretConfig struct {
 	Auth struct {
-		PrivateKey string `json:"private_key"`
-	} `json:"auth"`
+		PrivateKey string
+	}
 	Database struct {
-		Name     string `json:"name"`
-		Username string `json:"username"`
-		Password string `json:"password"`
-		Host     string `json:"host"`
-		Port     int    `json:"port"`
-	} `json:"database"`
+		Name     string
+		Username string
+		Password string
+		Host     string
+		Port     int
+	}
 	Tracer struct {
-		AddressURL string `json:"address_url"`
-	} `json:"tracer"`
+		AddressURL string
+	}
 }
 
 // ServiceConfig is the configuration for the service

@@ -151,8 +151,11 @@ func (uc *Usecase) Register(ctx context.Context, req RegisterRequest) (err error
 	defer span.Finish(err)
 
 	// Check if user is already exist
-	identities := []string{req.Email, req.Phone}
-	for _, identity := range identities {
+	identities := map[string]string{
+		"email": req.Email,
+		"phone": req.Phone,
+	}
+	for key, identity := range identities {
 		var exist bool
 		exist, err = uc.isExistUser(ctx, identity)
 		if err != nil {
@@ -161,7 +164,7 @@ func (uc *Usecase) Register(ctx context.Context, req RegisterRequest) (err error
 		}
 		if exist {
 			return gers.NewWithMetadata(errors.New("user already exist"),
-				ghttp.Metadata(http.StatusBadRequest, "Phone number is already registered"))
+				ghttp.Metadata(http.StatusBadRequest, fmt.Sprintf("%s is already registered", key)))
 		}
 	}
 	// Create user
@@ -171,6 +174,7 @@ func (uc *Usecase) Register(ctx context.Context, req RegisterRequest) (err error
 		Password: gcrypto.Hash(req.Password),
 		Type:     userRepo.TypeUser,
 		Status:   userRepo.StatusActive,
+		Email:    req.Email,
 	})
 	if err != nil {
 		return gers.NewWithMetadata(err,
@@ -191,6 +195,9 @@ func (uc *Usecase) isExistUser(ctx context.Context, identity string) (bool, erro
 		user, err = uc.userRepo.FindByPhone(ctx, identity)
 	}
 	if err != nil {
+		if errors.Is(err, cerror.ErrorNotFound) {
+			return false, nil
+		}
 		return false, gers.NewWithMetadata(err, ghttp.Metadata(http.StatusInternalServerError, cerror.ErrorMessageTryAgain.Error()))
 	}
 	return !user.IsEmpty(), nil

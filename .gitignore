@@ -22,3 +22,4 @@ go.work
 
 # Development directories
 /development
+files/config/secret_dev.json

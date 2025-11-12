@@ -43,8 +43,8 @@ type LogoutRequest struct {
 }
 
 type RegisterRequest struct {
-	Name     string
-	Phone    string
-	Email    string
-	Password string
+	Name     string `json:"name"`
+	Phone    string `json:"phone"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }

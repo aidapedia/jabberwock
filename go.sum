@@ -16,6 +16,10 @@ github.com/Microsoft/go-winio v0.6.2 h1:F2VQgta7ecxGYO8k3ZZz3RS8fVIXVxONVUPlNERo
 github.com/Microsoft/go-winio v0.6.2/go.mod h1:yd8OoFMLzJbo9gZq8j5qaps8bJ9aShtEA8Ipt1oGCvU=
 github.com/aidapedia/gdk v0.0.4-0.20251109094114-3fcb99317330 h1:w/fLmA6OKNsOYaTZwdGIUjb51gp+Q2nIEqRJEhdfFPM=
 github.com/aidapedia/gdk v0.0.4-0.20251109094114-3fcb99317330/go.mod h1:vWK0en2vTeVFWLvHSv1aUjJva60YZSLlR7bWAy/AT2w=
+github.com/aidapedia/gdk v0.0.4-0.20251112064621-170f70efd65a h1:Zkw20e7tZ1eRDTssf20y4U6zoCna1a8/26RT7Q5YFvE=
+github.com/aidapedia/gdk v0.0.4-0.20251112064621-170f70efd65a/go.mod h1:vWK0en2vTeVFWLvHSv1aUjJva60YZSLlR7bWAy/AT2w=
+github.com/aidapedia/gdk v0.0.4-0.20251112083956-35af1d2e8365 h1:U+/B84+wxpKGvxPp0OSLP2mkjEEsWy9KNddwEIvYU3M=
+github.com/aidapedia/gdk v0.0.4-0.20251112083956-35af1d2e8365/go.mod h1:vWK0en2vTeVFWLvHSv1aUjJva60YZSLlR7bWAy/AT2w=
 github.com/andybalholm/brotli v1.1.1 h1:PR2pgnyFznKEugtsUo0xLdDop5SKXd5Qf5ysW+7XdTA=
 github.com/andybalholm/brotli v1.1.1/go.mod h1:05ib4cKhjx3OQYUY22hTVd34Bc8upXjOLL2rKwwZBoA=
 github.com/bmatcuk/doublestar/v4 v4.6.1 h1:FH9SifrbvJhnlQpztAx++wlkk70QBf0iBWDwNy7PA4I=
