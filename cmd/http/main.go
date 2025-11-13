@@ -5,10 +5,12 @@ import (
 	"os"
 	"time"
 
+	gjwt "github.com/aidapedia/gdk/cryptography/jwt"
 	"github.com/aidapedia/gdk/log"
 	"github.com/aidapedia/gdk/telemetry/tracer"
 	"github.com/aidapedia/jabberwock/internal/app"
 	"github.com/aidapedia/jabberwock/pkg/config"
+	"github.com/golang-jwt/jwt/v5"
 	"go.uber.org/zap"
 )
 
@@ -17,6 +19,11 @@ func main() {
 
 	// Initialize config
 	cfg := config.GetConfig(ctx)
+
+	// Initialize JWT
+	gjwt.New([]byte(cfg.Secret.Auth.PrivateKey), []jwt.ParserOption{
+		jwt.WithExpirationRequired(),
+	}...)
 
 	// Initialize logger
 	log.New(&log.Config{

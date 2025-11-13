@@ -5,11 +5,11 @@ import (
 	"errors"
 	"net/http"
 
-	ghttp "github.com/aidapedia/gdk/http"
-	userRepo "github.com/aidapedia/jabberwock/internal/repository/user"
-
-	gcryptography "github.com/aidapedia/gdk/cryptography"
+	ghash "github.com/aidapedia/gdk/cryptography/hash"
 	gers "github.com/aidapedia/gdk/error"
+	ghttp "github.com/aidapedia/gdk/http"
+
+	userRepo "github.com/aidapedia/jabberwock/internal/repository/user"
 )
 
 // validationPassword is a function to validate password
@@ -21,7 +21,7 @@ func (a *Usecase) validationPassword(ctx context.Context, user userRepo.User, pa
 		return err
 	}
 	// And then if no blocked check password is valid or not.
-	if !gcryptography.CheckHash(password, user.Password) {
+	if !ghash.CheckHash(password, user.Password) {
 		// Not valid will update attempt login and return error
 		err = a.updateAttemptFailed(ctx, user, lastAttempt)
 		if err != nil {

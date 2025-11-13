@@ -7,14 +7,14 @@ import (
 	"net/http"
 	"strings"
 
-	gcrypto "github.com/aidapedia/gdk/cryptography"
+	ghash "github.com/aidapedia/gdk/cryptography/hash"
+	gjwt "github.com/aidapedia/gdk/cryptography/jwt"
 	gers "github.com/aidapedia/gdk/error"
 	ghttp "github.com/aidapedia/gdk/http"
 	"github.com/aidapedia/gdk/telemetry/tracer"
 	gvalidation "github.com/aidapedia/gdk/validation"
 	cerror "github.com/aidapedia/jabberwock/internal/common/error"
 	userRepo "github.com/aidapedia/jabberwock/internal/repository/user"
-	pkgJWT "github.com/aidapedia/jabberwock/pkg/jwt"
 
 	sessionRepo "github.com/aidapedia/jabberwock/internal/repository/session"
 )
@@ -24,7 +24,7 @@ func (uc *Usecase) CheckAccessToken(ctx context.Context, req CheckAccessTokenPay
 	span, ctx := tracer.StartSpanFromContext(ctx, "AuthUsecase/CheckAccessToken")
 	defer span.Finish(err)
 
-	claims, err := pkgJWT.VerifyToken(strings.TrimPrefix(string(req.Token), "Bearer "))
+	claims, err := gjwt.VerifyToken(strings.TrimPrefix(string(req.Token), "Bearer "))
 	if err != nil {
 		return gers.NewWithMetadata(err, ghttp.Metadata(http.StatusUnauthorized, "Unauthorized"))
 	}
@@ -127,7 +127,7 @@ func (uc *Usecase) Logout(ctx context.Context, req LogoutRequest) (err error) {
 	span, ctx := tracer.StartSpanFromContext(ctx, "AuthUsecase/Logout")
 	defer span.Finish(err)
 
-	claims, err := pkgJWT.VerifyToken(strings.TrimPrefix(req.Token, "Bearer "))
+	claims, err := gjwt.VerifyToken(strings.TrimPrefix(req.Token, "Bearer "))
 	if err != nil {
 		return gers.NewWithMetadata(err, ghttp.Metadata(http.StatusUnauthorized, "Unauthorized"))
 	}
@@ -171,7 +171,7 @@ func (uc *Usecase) Register(ctx context.Context, req RegisterRequest) (err error
 	err = uc.userRepo.CreateUser(ctx, &userRepo.User{
 		Name:     req.Name,
 		Phone:    req.Phone,
-		Password: gcrypto.Hash(req.Password),
+		Password: ghash.Hash(req.Password),
 		Type:     userRepo.TypeUser,
 		Status:   userRepo.StatusActive,
 		Email:    req.Email,

@@ -3,7 +3,8 @@ module github.com/aidapedia/jabberwock
 go 1.24.2
 
 require (
-	github.com/aidapedia/gdk v0.0.4-0.20251112083956-35af1d2e8365
+	github.com/aidapedia/gdk v0.0.4-0.20251113013149-d40d326092da
+	github.com/bytedance/sonic v1.13.3
 	github.com/casbin/casbin/v2 v2.127.0
 	github.com/gofiber/fiber/v3 v3.0.0-beta.4
 	github.com/golang-jwt/jwt/v5 v5.3.0
@@ -23,7 +24,6 @@ require (
 	cloud.google.com/go/secretmanager v1.15.0 // indirect
 	github.com/andybalholm/brotli v1.1.1 // indirect
 	github.com/bmatcuk/doublestar/v4 v4.6.1 // indirect
-	github.com/bytedance/sonic v1.13.3 // indirect
 	github.com/bytedance/sonic/loader v0.2.4 // indirect
 	github.com/casbin/govaluate v1.3.0 // indirect
 	github.com/cenkalti/backoff/v5 v5.0.3 // indirect
