@@ -16,6 +16,7 @@ import (
 	userRepo "github.com/aidapedia/jabberwock/internal/repository/user"
 
 	authenticatedUsecase "github.com/aidapedia/jabberwock/internal/usecase/authenticated"
+	userdatacenterUsecase "github.com/aidapedia/jabberwock/internal/usecase/userdatacenter"
 
 	gredisengine "github.com/aidapedia/gdk/cache/engine"
 	casbin "github.com/casbin/casbin/v2"
@@ -97,6 +98,7 @@ var (
 
 	usecaseSet = wire.NewSet(
 		authenticatedUsecase.New,
+		userdatacenterUsecase.New,
 	)
 
 	httpSet = wire.NewSet(

@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	gJWT "github.com/aidapedia/gdk/cryptography/jwt"
+	gjwt "github.com/aidapedia/gdk/cryptography/jwt"
 	"github.com/aidapedia/jabberwock/pkg/config"
 	"github.com/google/uuid"
 )
@@ -13,7 +13,7 @@ func (uc *Usecase) generateToken(ctx context.Context, userID int64, roleID strin
 	id := uuid.New()
 	cfg := config.GetConfig(ctx)
 	// Generate access token
-	accessToken, err := gJWT.SignToken(map[string]interface{}{
+	accessToken, err := gjwt.SignToken(map[string]interface{}{
 		"jti":  id.String(),
 		"sub":  userID,
 		"role": roleID,
@@ -25,7 +25,7 @@ func (uc *Usecase) generateToken(ctx context.Context, userID int64, roleID strin
 		return resp, err
 	}
 	// Generate refresh token
-	refreshToken, err := gJWT.SignToken(map[string]interface{}{
+	refreshToken, err := gjwt.SignToken(map[string]interface{}{
 		"jti":  id.String(),
 		"sub":  userID,
 		"role": roleID,

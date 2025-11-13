@@ -58,7 +58,7 @@ func (uc *Usecase) CheckAccessToken(ctx context.Context, req CheckAccessTokenPay
 	}
 
 	method, path := ParseElementID(req.ElementID)
-	result, err := uc.enforcer.Enforce(role, method, path)
+	result, err := uc.enforcer.Enforce(role, path, method)
 	if err != nil {
 		return gers.NewWithMetadata(err, ghttp.Metadata(http.StatusUnauthorized, "Unauthorized"))
 	}

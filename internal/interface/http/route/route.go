@@ -15,4 +15,5 @@ func Register(app *fiber.App, handler *handler.Handler, middleware *middleware.M
 	// Protected Routes
 	auth := app.Group("", middleware.CheckAccess())
 	auth.Post("/logout", handler.Logout)
+	auth.Get("/user/:id", handler.GetUserByID)
 }

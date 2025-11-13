@@ -14,6 +14,11 @@ import (
 	"github.com/aidapedia/jabberwock/internal/repository/session"
 	"github.com/aidapedia/jabberwock/internal/repository/user"
 	"github.com/aidapedia/jabberwock/internal/usecase/authenticated"
+	"github.com/aidapedia/jabberwock/internal/usecase/userdatacenter"
+)
+
+import (
+	_ "github.com/lib/pq"
 )
 
 // Injectors from wire.go:
@@ -25,7 +30,8 @@ func InitHTTPServer(ctx context.Context) http.HTTPServiceInterface {
 	userInterface := user.New(db)
 	enforcer := casbinProvider(ctx)
 	authenticatedInterface := authenticated.New(sessionInterface, userInterface, enforcer)
-	handlerHandler := handler.NewHandler(authenticatedInterface)
+	userdatacenterInterface := userdatacenter.New(userInterface)
+	handlerHandler := handler.NewHandler(authenticatedInterface, userdatacenterInterface)
 	middlewareMiddleware := middleware.NewMiddleware(authenticatedInterface)
 	httpServiceInterface := http.NewHTTPService(handlerHandler, middlewareMiddleware)
 	return httpServiceInterface

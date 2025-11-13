@@ -21,7 +21,7 @@ func main() {
 	cfg := config.GetConfig(ctx)
 
 	// Initialize JWT
-	gjwt.New([]byte(cfg.Secret.Auth.PrivateKey), []jwt.ParserOption{
+	gjwt.New([]byte(cfg.Secret.Auth.PrivateKey), []byte(cfg.Secret.Auth.PublicKey), []jwt.ParserOption{
 		jwt.WithExpirationRequired(),
 	}...)
 

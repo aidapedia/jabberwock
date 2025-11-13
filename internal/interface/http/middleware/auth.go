@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	ghttp "github.com/aidapedia/gdk/http"
 	gmiddleware "github.com/aidapedia/gdk/http/server/middleware"
 
 	authUsecase "github.com/aidapedia/jabberwock/internal/usecase/authenticated"
@@ -17,6 +18,7 @@ func (e *Middleware) CheckAccess() gmiddleware.Middleware {
 			ElementID: authUsecase.GenerateElementID(c.Method(), c.Path()),
 		})
 		if err != nil {
+			ghttp.JSONResponse(c, nil, err)
 			return err
 		}
 

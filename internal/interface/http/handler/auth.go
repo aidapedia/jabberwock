@@ -28,7 +28,7 @@ func (h *Handler) Login(c fiber.Ctx) error {
 	req.IP = string(c.IP())
 	req.UserAgent = string(c.Request().Header.Peek("User-Agent"))
 
-	ucResp, err := h.usecase.Login(ctx, req)
+	ucResp, err := h.authUsecase.Login(ctx, req)
 	if err != nil {
 		ghttp.JSONResponse(c, nil, err)
 		return err
@@ -43,7 +43,7 @@ func (h *Handler) Logout(c fiber.Ctx) error {
 	span, ctx := tracer.StartSpanFromContext(c.Context(), "AuthHandler/Logout")
 	defer span.Finish(nil)
 
-	if err := h.usecase.Logout(ctx, authenticated.LogoutRequest{
+	if err := h.authUsecase.Logout(ctx, authenticated.LogoutRequest{
 		Token: string(c.Request().Header.Peek("Authorization")),
 	}); err != nil {
 		ghttp.JSONResponse(c, nil, err)
@@ -66,7 +66,7 @@ func (h *Handler) Register(c fiber.Ctx) error {
 		return err
 	}
 
-	err := h.usecase.Register(ctx, req)
+	err := h.authUsecase.Register(ctx, req)
 	if err != nil {
 		ghttp.JSONResponse(c, nil, err)
 		return err

@@ -4,6 +4,7 @@ package model
 type SecretConfig struct {
 	Auth struct {
 		PrivateKey string
+		PublicKey  string
 	}
 	Database struct {
 		Name     string
