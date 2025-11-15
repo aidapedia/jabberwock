@@ -1,34 +1,7 @@
-p, ALL, /v1/logout, POST
-p, ALL, /v1/profile/user, GET
-p, ALL, /v1/profile/user, PATCH
-p, ALL, /v1/profile/user/password, PATCH
-p, ALL, /v1/profile/user/document, POST
-p, ALL, /v1/profile/user/relationship, POST
-p, ALL, /v1/menu, GET
-p, MANAGE, /v1/manage/asset, GET
-p, MANAGE, /v1/manage/asset/:id, GET
-p, MANAGE, /v1/manage/asset/:id/room, GET
-p, MANAGE, /v1/manage/asset/:assetID/room/:roomID, GET
-p, MANAGE, /v1/manage/asset, POST
-p, MANAGE, /v1/manage/asset, PATCH
-p, MANAGE, /v1/manage/asset/:id, DELETE
-p, MANAGE, /v1/manage/asset/config, POST
-p, MANAGE, /v1/manage/asset/config/bulk, POST
-p, MANAGE, /v1/manage/asset/config/bulk, DELETE
-p, MANAGE, /v1/manage/asset/:id/config, GET
+p, ALL, /logout, POST
+p, ALL, /user/:id, GET
 
-p, MANAGE, /v1/manage/room, GET
-p, MANAGE, /v1/manage/room/:id, GET
-p, MANAGE, /v1/manage/room, PATCH
-p, MANAGE, /v1/manage/room, POST
-p, MANAGE, /v1/manage/asset/:assetID/room/:roomID, DELETE
+g, admin, ALL
+g, user, ALL
 
-p, MANAGE, /v1/manage/room/type/config, POST
-p, MEMBER, /v1/manage/order/checkout, POST
-p, MANAGE, /v1/manage/bill/confirm/payment, GET
-p, ALL, /v1/order/:id, GET
-
-g, ADMIN, ALL
-g, MEMBER, ALL
-
-g, ADMIN, MANAGE
+g, admin, MANAGE

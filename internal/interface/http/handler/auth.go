@@ -35,7 +35,9 @@ func (h *Handler) Login(c fiber.Ctx) error {
 	}
 
 	resp.FromUsecase(ucResp)
-	ghttp.JSONResponse(c, resp, nil)
+	ghttp.JSONResponse(c, &ghttp.SuccessResponse{
+		Data: resp,
+	}, nil)
 	return nil
 }
 

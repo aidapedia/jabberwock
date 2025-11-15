@@ -11,12 +11,14 @@ func (h *Handler) GetUserByID(c fiber.Ctx) error {
 	span, ctx := tracer.StartSpanFromContext(c.Context(), "UserDataCenterHandler/GetUserByID")
 	defer span.Finish(nil)
 
-	user, err := h.userUsecase.GetUserByID(ctx, util.ToInt64(c.Params("id")))
+	resp, err := h.userUsecase.GetUserByID(ctx, util.ToInt64(c.Params("id")))
 	if err != nil {
 		ghttp.JSONResponse(c, nil, err)
 		return err
 	}
 
-	ghttp.JSONResponse(c, user, nil)
+	ghttp.JSONResponse(c, &ghttp.SuccessResponse{
+		Data: resp,
+	}, nil)
 	return nil
 }

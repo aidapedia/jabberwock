@@ -17,6 +17,8 @@ func NewHandler(authUsecase authenticated.Interface, userUsecase userdatacenter.
 }
 
 func (h *Handler) Ping(c fiber.Ctx) error {
-	ghttp.JSONResponse(c, map[string]string{"message": "pong"}, nil)
+	ghttp.JSONResponse(c, &ghttp.SuccessResponse{
+		Data: map[string]string{"message": "pong"},
+	}, nil)
 	return nil
 }
