@@ -21,7 +21,7 @@ import (
 
 // CheckAccessToken checks if the access token is valid
 func (uc *Usecase) CheckAccessToken(ctx context.Context, req CheckAccessTokenPayload) (err error) {
-	span, ctx := tracer.StartSpanFromContext(ctx, "AuthUsecase/CheckAccessToken")
+	span, ctx := tracer.StartSpanFromContext(ctx, "AuthenticateUsecase/CheckAccessToken")
 	defer span.Finish(err)
 
 	claims, err := gjwt.VerifyToken(strings.TrimPrefix(string(req.Token), "Bearer "))
@@ -72,7 +72,7 @@ func (uc *Usecase) CheckAccessToken(ctx context.Context, req CheckAccessTokenPay
 
 // Login do login for user get sessions
 func (uc *Usecase) Login(ctx context.Context, req LoginRequest) (resp LoginResponse, err error) {
-	span, ctx := tracer.StartSpanFromContext(ctx, "AuthUsecase/Login")
+	span, ctx := tracer.StartSpanFromContext(ctx, "AuthenticateUsecase/Login")
 	defer span.Finish(err)
 
 	// Check if user identity is email or phone number
@@ -124,7 +124,7 @@ func (uc *Usecase) Login(ctx context.Context, req LoginRequest) (resp LoginRespo
 }
 
 func (uc *Usecase) Logout(ctx context.Context, req LogoutRequest) (err error) {
-	span, ctx := tracer.StartSpanFromContext(ctx, "AuthUsecase/Logout")
+	span, ctx := tracer.StartSpanFromContext(ctx, "AuthenticateUsecase/Logout")
 	defer span.Finish(err)
 
 	claims, err := gjwt.VerifyToken(strings.TrimPrefix(req.Token, "Bearer "))
@@ -147,7 +147,7 @@ func (uc *Usecase) Logout(ctx context.Context, req LogoutRequest) (err error) {
 
 // Register is a function to handle register
 func (uc *Usecase) Register(ctx context.Context, req RegisterRequest) (err error) {
-	span, ctx := tracer.StartSpanFromContext(ctx, "AuthUsecase/Register")
+	span, ctx := tracer.StartSpanFromContext(ctx, "AuthenticateUsecase/Register")
 	defer span.Finish(err)
 
 	// Check if user is already exist
@@ -182,6 +182,62 @@ func (uc *Usecase) Register(ctx context.Context, req RegisterRequest) (err error
 	}
 
 	return nil
+}
+
+// RefreshToken is a function to handle refresh token
+func (uc *Usecase) RefreshToken(ctx context.Context, req RefreshTokenRequest) (resp RefreshTokenResponse, err error) {
+	span, ctx := tracer.StartSpanFromContext(ctx, "AuthenticateUsecase/RefreshToken")
+	defer span.Finish(err)
+
+	// Verify refresh token
+	claims, err := gjwt.VerifyToken(req.RefreshToken)
+	if err != nil {
+		return RefreshTokenResponse{}, gers.NewWithMetadata(err,
+			ghttp.Metadata(http.StatusInternalServerError, "Your refresh token is invalid"))
+	}
+
+	tokenID, ok := claims["sub"].(string)
+	if !ok {
+		return RefreshTokenResponse{}, gers.NewWithMetadata(errors.New("invalid token"),
+			ghttp.Metadata(http.StatusInternalServerError, "Your refresh token is invalid"))
+	}
+
+	// Get session from database
+	sessions, err := uc.sessionRepo.FindActiveSessionByTokenID(ctx, tokenID)
+	if err != nil {
+		return RefreshTokenResponse{}, gers.NewWithMetadata(err,
+			ghttp.Metadata(http.StatusInternalServerError, cerror.ErrorMessageTryAgain.Error()))
+	}
+
+	// Validate Refresh Token
+	if sessions.IP != req.IP {
+		return RefreshTokenResponse{}, gers.NewWithMetadata(errors.New("ip not match"),
+			ghttp.Metadata(http.StatusInternalServerError, "Your refresh token is invalid"))
+	}
+	if sessions.UserAgent != req.UserAgent {
+		return RefreshTokenResponse{}, gers.NewWithMetadata(errors.New("user agent not match"),
+			ghttp.Metadata(http.StatusInternalServerError, "Your refresh token is invalid"))
+	}
+
+	// Generate token
+	tokenResp, err := uc.refreshToken(ctx, sessions, claims["role"].(string))
+	if err != nil {
+		return RefreshTokenResponse{}, gers.NewWithMetadata(err,
+			ghttp.Metadata(http.StatusInternalServerError, cerror.ErrorMessageTryAgain.Error()))
+	}
+
+	// Update session token last updated
+	err = uc.sessionRepo.UpdateRefreshDateByTokenID(ctx, tokenID)
+	if err != nil {
+		return RefreshTokenResponse{}, gers.NewWithMetadata(err,
+			ghttp.Metadata(http.StatusInternalServerError, cerror.ErrorMessageTryAgain.Error()))
+	}
+
+	return RefreshTokenResponse{
+		TokenType:    "Bearer",
+		AccessToken:  tokenResp.AccessToken,
+		RefreshToken: tokenResp.RefreshToken,
+	}, nil
 }
 
 func (uc *Usecase) isExistUser(ctx context.Context, identity string) (bool, error) {

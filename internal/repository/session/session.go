@@ -62,6 +62,21 @@ func (r *Repository) DeleteActiveSession(ctx context.Context, tokenID string) (e
 	return nil
 }
 
+func (r *Repository) UpdateRefreshDateByTokenID(ctx context.Context, tokenID string) (err error) {
+	span, ctx := tracer.StartSpanFromContext(ctx, "SessionRepository/UpdateRefreshDateByTokenID")
+	defer span.Finish(err)
+
+	query := queryUpdateRefreshDateByTokenID
+	args := []interface{}{tokenID, time.Now()}
+
+	_, err = r.database.ExecContext(ctx, query, args...)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (r *Repository) GetLoginAttempt(ctx context.Context, userID int64) (result LoginAttempt, err error) {
 	span, ctx := tracer.StartSpanFromContext(ctx, "SessionRepository/GetLoginAttempt")
 	defer span.Finish(err)

@@ -17,4 +17,10 @@ const (
 	DELETE FROM sessions
 	WHERE token = $1
 	`
+
+	queryUpdateRefreshDateByTokenID = `
+	UPDATE sessions
+	SET updated_at = $2
+	WHERE token = $1
+	`
 )

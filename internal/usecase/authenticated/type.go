@@ -17,18 +17,18 @@ type CheckAccessTokenPayload struct {
 }
 
 type LoginRequest struct {
-	Identity string `json:"identity"`
-	Password string `json:"password"`
+	Identity string
+	Password string
 
-	IP        string `json:"-"`
-	UserAgent string `json:"-"`
+	IP        string
+	UserAgent string
 }
 
 type LoginResponse struct {
-	TokenType    string        `json:"token_type"`
-	AccessToken  string        `json:"access_token"`
-	RefreshToken string        `json:"refresh_token"`
-	User         userRepo.User `json:"user"`
+	TokenType    string
+	AccessToken  string
+	RefreshToken string
+	User         userRepo.User
 }
 
 func (e *LoginResponse) Transform(token TokenResponse, user userRepo.User) {
@@ -43,8 +43,21 @@ type LogoutRequest struct {
 }
 
 type RegisterRequest struct {
-	Name     string `json:"name"`
-	Phone    string `json:"phone"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	Name     string
+	Phone    string
+	Email    string
+	Password string
+}
+
+type RefreshTokenRequest struct {
+	RefreshToken string
+
+	IP        string
+	UserAgent string
+}
+
+type RefreshTokenResponse struct {
+	TokenType    string
+	AccessToken  string
+	RefreshToken string
 }

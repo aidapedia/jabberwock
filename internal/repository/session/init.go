@@ -10,6 +10,7 @@ import (
 type Interface interface {
 	CreateActiveSession(ctx context.Context, session *Session) error
 	FindActiveSessionByTokenID(ctx context.Context, tokenID string) (Session, error)
+	UpdateRefreshDateByTokenID(ctx context.Context, tokenID string) error
 	DeleteActiveSession(ctx context.Context, tokenID string) error
 
 	GetLoginAttempt(ctx context.Context, userID int64) (LoginAttempt, error)

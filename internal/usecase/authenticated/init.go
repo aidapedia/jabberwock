@@ -13,6 +13,7 @@ type Interface interface {
 	Login(ctx context.Context, req LoginRequest) (resp LoginResponse, err error)
 	Logout(ctx context.Context, req LogoutRequest) error
 	Register(ctx context.Context, req RegisterRequest) error
+	RefreshToken(ctx context.Context, req RefreshTokenRequest) (resp RefreshTokenResponse, err error)
 }
 
 type Usecase struct {

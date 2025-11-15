@@ -13,12 +13,10 @@ func (h *Handler) GetUserByID(c fiber.Ctx) error {
 
 	resp, err := h.userUsecase.GetUserByID(ctx, util.ToInt64(c.Params("id")))
 	if err != nil {
-		ghttp.JSONResponse(c, nil, err)
-		return err
+		return ghttp.JSONResponse(c, nil, err)
 	}
 
-	ghttp.JSONResponse(c, &ghttp.SuccessResponse{
+	return ghttp.JSONResponse(c, &ghttp.SuccessResponse{
 		Data: resp,
 	}, nil)
-	return nil
 }
