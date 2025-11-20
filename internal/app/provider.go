@@ -60,7 +60,7 @@ func redisProvider(ctx context.Context) gredisengine.Interface {
 
 	redis, err := gredisengine.NewGoRedisClient(gredisengine.GoRedisClientOpt{
 		Opt: &goredis.Options{
-			Addr: fmt.Sprintf("%s:%d", cfg.Storage.Redis.Address, cfg.Storage.Redis.Port),
+			Addr: fmt.Sprintf("%s:%d", cfg.Secret.Redis.Address, cfg.Secret.Redis.Port),
 			MaintNotificationsConfig: &goredismaint.Config{
 				Mode: goredismaint.ModeDisabled,
 			},

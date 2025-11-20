@@ -6,6 +6,7 @@ import (
 
 	"github.com/aidapedia/gdk/http/server"
 	gmask "github.com/aidapedia/gdk/mask"
+	"github.com/gofiber/fiber/v3"
 
 	"github.com/aidapedia/jabberwock/internal/interface/http/handler"
 	"github.com/aidapedia/jabberwock/internal/interface/http/middleware"
@@ -37,5 +38,8 @@ func NewHTTPService(handler *handler.Handler, middleware *middleware.Middleware)
 // ListenAndServe is a function to start http service
 func (h *HTTPService) ListenAndServe() error {
 	cfg := config.GetConfig(context.Background())
-	return h.svr.Listen(fmt.Sprintf("%s:%d", cfg.App.HTTPServer.Address, cfg.App.HTTPServer.Port))
+	fmt.Printf("Starting HTTP server %s:%d\n", cfg.App.HTTPServer.Address, cfg.App.HTTPServer.Port)
+	return h.svr.Listen(fmt.Sprintf("%s:%d", cfg.App.HTTPServer.Address, cfg.App.HTTPServer.Port), fiber.ListenConfig{
+		DisableStartupMessage: true,
+	})
 }

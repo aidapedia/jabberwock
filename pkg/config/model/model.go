@@ -13,6 +13,10 @@ type SecretConfig struct {
 		Host     string
 		Port     int
 	}
+	Redis struct {
+		Address string
+		Port    int
+	}
 	Tracer struct {
 		AddressURL string
 	}
@@ -20,9 +24,12 @@ type SecretConfig struct {
 
 // ServiceConfig is the configuration for the service
 type ServiceConfig struct {
-	App     App
-	Storage Storage
-	Vendor  Vendor
+	// Application Config
+	App App
 	// Secret Config
 	Secret SecretConfig
+	// Feature Flags
+	FeatureFlags struct {
+		UseTracer bool
+	}
 }

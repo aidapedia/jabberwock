@@ -12,8 +12,9 @@
             "program": "${workspaceFolder}/cmd/http/main.go",
             "env": {
                 "APP_ENV": "development",
-                "CONFIG_FILE_PATH": "../../files/config/development",
-                "SECRET_FILE_PATH": "../../files/config/secret.json",
+                "CONFIG_FILE_PATH": "../../files/config",
+                "SECRET_FILE_PATH": "../../files/config/secret_dev.json",
+                "FEATURE_FLAG_FILE_PATH": "../../files/config/feature-flag.json",
             },
             "cwd": "${workspaceFolder}/cmd/http"
         },
@@ -28,8 +29,9 @@
             ],
             "env": {
                 "APP_ENV": "development",
-                "CONFIG_FILE_PATH": "../../files/config/development",
+                "CONFIG_FILE_PATH": "../../files/config",
                 "SECRET_FILE_PATH": "../../files/config/secret.json",
+                "FEATURE_FLAG_FILE_PATH": "../../files/config/feature-flag.json",
             },
             "cwd": "${workspaceFolder}/pkg/migration"
         },
@@ -44,8 +46,9 @@
             ],
             "env": {
                 "APP_ENV": "development",
-                "CONFIG_FILE_PATH": "../../files/config/development",
+                "CONFIG_FILE_PATH": "../../files/config",
                 "SECRET_FILE_PATH": "../../files/config/secret.json",
+                "FEATURE_FLAG_FILE_PATH": "../../files/config/feature-flag.json",
             },
             "cwd": "${workspaceFolder}/pkg/migration"
         },
@@ -60,8 +63,9 @@
             ],
             "env": {
                 "APP_ENV": "development",
-                "CONFIG_FILE_PATH": "../../files/config/development",
+                "CONFIG_FILE_PATH": "../../files/config",
                 "SECRET_FILE_PATH": "../../files/config/secret.json",
+                "FEATURE_FLAG_FILE_PATH": "../../files/config/feature-flag.json",
             },
             "cwd": "${workspaceFolder}/pkg/migration"
         },
@@ -77,8 +81,9 @@
             ],
             "env": {
                 "APP_ENV": "development",
-                "CONFIG_FILE_PATH": "../../files/config/development",
+                "CONFIG_FILE_PATH": "../../files/config",
                 "SECRET_FILE_PATH": "../../files/config/secret.json",
+                "FEATURE_FLAG_FILE_PATH": "../../files/config/feature-flag.json",
             },
             "cwd": "${workspaceFolder}/pkg/migration"
         }

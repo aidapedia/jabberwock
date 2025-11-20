@@ -36,7 +36,7 @@ func main() {
 	defer log.Sync()
 
 	// Initialize tracer
-	if cfg.App.FeatureFlags.UseTracer {
+	if cfg.FeatureFlags.UseTracer {
 		tr, err := tracer.InitTracer(cfg.App.Name, cfg.Secret.Tracer.AddressURL, false)
 		if err != nil {
 			log.ErrorCtx(ctx, "Failed to initialize tracer", zap.Error(err))
