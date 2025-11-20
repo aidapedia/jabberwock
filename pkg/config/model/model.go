@@ -30,6 +30,6 @@ type ServiceConfig struct {
 	Secret SecretConfig
 	// Feature Flags
 	FeatureFlags struct {
-		UseTracer bool
+		DisableTracer bool
 	}
 }

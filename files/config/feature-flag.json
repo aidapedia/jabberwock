@@ -2,7 +2,7 @@
     "root": {
         "child": {},
         "keys": {
-            "enable_tracer": true
+            "disable_tracer": true
         }
     }
 }

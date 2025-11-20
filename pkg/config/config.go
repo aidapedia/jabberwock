@@ -10,6 +10,7 @@ import (
 	gfeatureflag "github.com/aidapedia/gdk/featureflag"
 	gfeatureflagmodule "github.com/aidapedia/gdk/featureflag/module"
 	"github.com/aidapedia/gdk/log"
+	"github.com/aidapedia/gdk/util"
 	"github.com/aidapedia/jabberwock/pkg/config/model"
 	"go.uber.org/zap"
 )
@@ -63,12 +64,17 @@ func GetConfig(ctx context.Context) *model.ServiceConfig {
 }
 
 func updateFeatureFlag(ctx context.Context, ff gfeatureflagmodule.Interface) {
+	var (
+		value interface{}
+		err   error
+	)
 	// Update Feature Flag
 	// Add new feature flag here
-	key, err := ff.GetBool(ctx, "enable_tracer")
+	value, err = ff.GetValue(ctx, "disable_tracer")
+	valBool := util.ToBool(value)
 	if err != nil {
-		log.WarnCtx(ctx, "Error updating feature flag", zap.String("key", "enable_tracer"), zap.Error(err))
-	} else if key != globalConfig.FeatureFlags.UseTracer {
-		globalConfig.FeatureFlags.UseTracer = key
+		log.WarnCtx(ctx, "Error updating feature flag", zap.String("key", "disable_tracer"), zap.Error(err))
+	} else if valBool != globalConfig.FeatureFlags.DisableTracer {
+		globalConfig.FeatureFlags.DisableTracer = valBool
 	}
 }
