@@ -35,8 +35,7 @@ echo "Replace all jabberwock with $newAppName ..."
 
 # add make generate key
 echo "Create private key ..."
-make generate-key
-echo "Private key created successfully."
+make generate_key
 
 # print successfully replace
 echo "Successfully init Project: $newProjectName with Name: $newAppName"
