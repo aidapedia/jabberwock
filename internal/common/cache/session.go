@@ -1,6 +1,7 @@
 package cache
 
 const (
-	RedisKeySession      = "sessions:user:%d"
 	RedisKeyLoginAttempt = "login_attempt:%d"
+
+	RedisKeyRegistrationOTP = "registration_otp:%s"
 )

@@ -1,9 +1,9 @@
 package route
 
 import (
+	"github.com/gofiber/fiber/v3"
 	"github.com/kurniajigunawan/homestay/internal/interface/http/handler"
 	"github.com/kurniajigunawan/homestay/internal/interface/http/middleware"
-	"github.com/gofiber/fiber/v3"
 )
 
 func Register(app *fiber.App, handler *handler.Handler, middleware *middleware.Middleware) {
@@ -11,7 +11,9 @@ func Register(app *fiber.App, handler *handler.Handler, middleware *middleware.M
 	app.Get("/ping", handler.Ping)
 	app.Group("/auth").
 		Post("/login", handler.Login).
-		Post("/register", handler.Register)
+		Post("/register", handler.Register).
+		Post("/register/resend", handler.ResendOTPRegistration).
+		Post("/register/verify", handler.VerifyOTPRegistration)
 
 	// Protected Routes
 	protected := app.Group("", middleware.CheckAccess())

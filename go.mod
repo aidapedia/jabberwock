@@ -25,6 +25,7 @@ require (
 	cloud.google.com/go/secretmanager v1.15.0 // indirect
 	github.com/andybalholm/brotli v1.1.1 // indirect
 	github.com/armon/go-metrics v0.4.0 // indirect
+	github.com/benbjohnson/clock v1.3.0 // indirect
 	github.com/bmatcuk/doublestar/v4 v4.6.1 // indirect
 	github.com/bytedance/sonic/loader v0.2.4 // indirect
 	github.com/casbin/govaluate v1.3.0 // indirect
@@ -43,6 +44,7 @@ require (
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
+	github.com/go-redis/redis/v8 v8.11.5 // indirect
 	github.com/gofiber/schema v1.5.0 // indirect
 	github.com/gofiber/utils/v2 v2.0.0-beta.8 // indirect
 	github.com/golang/mock v1.6.0 // indirect
@@ -100,6 +102,7 @@ require (
 	go.opentelemetry.io/otel/trace v1.38.0 // indirect
 	go.opentelemetry.io/proto/otlp v1.7.1 // indirect
 	go.uber.org/multierr v1.10.0 // indirect
+	go.uber.org/ratelimit v0.3.1 // indirect
 	golang.org/x/arch v0.0.0-20210923205945-b76863e36670 // indirect
 	golang.org/x/crypto v0.42.0 // indirect
 	golang.org/x/net v0.43.0 // indirect

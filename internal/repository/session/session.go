@@ -2,13 +2,12 @@ package session
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"time"
 
 	"github.com/aidapedia/gdk/telemetry/tracer"
-	"github.com/kurniajigunawan/homestay/internal/common/cache"
 	"github.com/bytedance/sonic"
+	"github.com/kurniajigunawan/homestay/internal/common/cache"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -90,7 +89,7 @@ func (r *Repository) GetLoginAttempt(ctx context.Context, userID int64) (result 
 		return LoginAttempt{}, err
 	}
 
-	err = json.Unmarshal([]byte(val), &result)
+	err = sonic.UnmarshalString(val, &result)
 	if err != nil {
 		return result, err
 	}

@@ -1,8 +1,8 @@
 package model
 
 import (
-	authUC "github.com/kurniajigunawan/homestay/internal/usecase/authenticated"
 	"github.com/gofiber/fiber/v3"
+	authUC "github.com/kurniajigunawan/homestay/internal/usecase/authenticated"
 )
 
 type LoginResponse struct {
@@ -90,5 +90,28 @@ func (e *RegisterRequest) ToUsecase(c fiber.Ctx) authUC.RegisterRequest {
 		Phone:    e.Phone,
 		Email:    e.Email,
 		Password: e.Password,
+	}
+}
+
+type ResendOTPRegistrationRequest struct {
+	Phone string `json:"phone"`
+}
+
+func (e *ResendOTPRegistrationRequest) ToUsecase(c fiber.Ctx) authUC.ResendOTPRegistrationRequest {
+	return authUC.ResendOTPRegistrationRequest{
+		Phone:  e.Phone,
+		Method: authUC.MethodWhatsappText, // Currently only Whatsapp Text
+	}
+}
+
+type VerifyOTPRegistrationRequest struct {
+	Phone string `json:"phone"`
+	OTP   string `json:"otp"`
+}
+
+func (e *VerifyOTPRegistrationRequest) ToUsecase(c fiber.Ctx) authUC.VerifyOTPRegistrationRequest {
+	return authUC.VerifyOTPRegistrationRequest{
+		Phone: e.Phone,
+		OTP:   e.OTP,
 	}
 }

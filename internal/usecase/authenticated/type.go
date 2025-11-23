@@ -68,3 +68,26 @@ type RefreshTokenResponse struct {
 	AccessToken  string
 	RefreshToken string
 }
+
+type SendOTPVerificationRequest struct {
+	Phone    string
+	Name     string
+	Password string
+	Method   method
+}
+
+type method string
+
+const (
+	MethodWhatsappText method = "whatsapp-text"
+)
+
+type ResendOTPRegistrationRequest struct {
+	Phone  string
+	Method method
+}
+
+type VerifyOTPRegistrationRequest struct {
+	Phone string
+	OTP   string
+}

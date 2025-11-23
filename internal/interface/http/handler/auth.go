@@ -3,8 +3,8 @@ package handler
 import (
 	"net/http"
 
-	"github.com/kurniajigunawan/homestay/internal/interface/http/handler/model"
 	"github.com/gofiber/fiber/v3"
+	"github.com/kurniajigunawan/homestay/internal/interface/http/handler/model"
 
 	gers "github.com/aidapedia/gdk/error"
 	ghttp "github.com/aidapedia/gdk/http"
@@ -89,4 +89,42 @@ func (h *Handler) RefreshToken(c fiber.Ctx) error {
 	return ghttp.JSONResponse(c, &ghttp.SuccessResponse{
 		Data: resp,
 	}, nil)
+}
+
+func (h *Handler) ResendOTPRegistration(c fiber.Ctx) error {
+	span, ctx := tracer.StartSpanFromContext(c.Context(), "AuthHandler/ResendOTPRegistration")
+	defer span.Finish(nil)
+
+	var (
+		req model.ResendOTPRegistrationRequest
+	)
+	if err := c.Bind().Body(&req); err != nil {
+		return ghttp.JSONResponse(c, nil, gers.NewWithMetadata(err, ghttp.Metadata(http.StatusBadRequest, "Bad Request")))
+	}
+
+	err := h.authUsecase.ResendOTPRegistration(ctx, req.ToUsecase(c))
+	if err != nil {
+		return ghttp.JSONResponse(c, nil, err)
+	}
+
+	return ghttp.JSONResponse(c, nil, nil)
+}
+
+func (h *Handler) VerifyOTPRegistration(c fiber.Ctx) error {
+	span, ctx := tracer.StartSpanFromContext(c.Context(), "AuthHandler/VerifyOTPRegistration")
+	defer span.Finish(nil)
+
+	var (
+		req model.VerifyOTPRegistrationRequest
+	)
+	if err := c.Bind().Body(&req); err != nil {
+		return ghttp.JSONResponse(c, nil, gers.NewWithMetadata(err, ghttp.Metadata(http.StatusBadRequest, "Bad Request")))
+	}
+
+	err := h.authUsecase.VerifyOTPRegistration(ctx, req.ToUsecase(c))
+	if err != nil {
+		return ghttp.JSONResponse(c, nil, err)
+	}
+
+	return ghttp.JSONResponse(c, nil, nil)
 }

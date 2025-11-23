@@ -11,7 +11,13 @@
                 "Port": 8080
             },
             "Auth": {
-                "Issuer": "http://localhost:8080"
+                "Issuer": "http://localhost:8080",
+                "ModelPath": "../../files/casbin/model.conf",
+                "PolicyPath": "../../files/casbin/policy.csv"
+            },
+            "Registration": {
+                "TTL": "30m",
+                "OTPResendInterval": "5m"
             }
         }
     }

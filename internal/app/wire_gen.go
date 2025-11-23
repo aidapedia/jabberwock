@@ -15,8 +15,10 @@ import (
 	"github.com/kurniajigunawan/homestay/internal/interface/http"
 	"github.com/kurniajigunawan/homestay/internal/interface/http/handler"
 	"github.com/kurniajigunawan/homestay/internal/interface/http/middleware"
+	"github.com/kurniajigunawan/homestay/internal/repository/otp"
 	"github.com/kurniajigunawan/homestay/internal/repository/policy"
 	"github.com/kurniajigunawan/homestay/internal/repository/session"
+	"github.com/kurniajigunawan/homestay/internal/repository/thirdparty/whatsapp"
 	"github.com/kurniajigunawan/homestay/internal/repository/user"
 	"github.com/kurniajigunawan/homestay/internal/usecase/authenticated"
 	policy2 "github.com/kurniajigunawan/homestay/internal/usecase/policy"
@@ -30,14 +32,16 @@ import (
 // Injectors from wire.go:
 
 func InitHTTPServer(ctx context.Context) *service.ServiceHTTP {
+	whatsappInterface := whatsapp.New()
 	db := database.NewDatabase(ctx)
 	policyInterface := policy.New(db)
-	enforcer := casbin.NewCasbin(ctx)
-	interface2 := policy2.New(policyInterface, enforcer)
 	engineInterface := redis.NewRedis(ctx)
 	sessionInterface := session.New(db, engineInterface)
 	userInterface := user.New(db)
-	authenticatedInterface := authenticated.New(policyInterface, interface2, sessionInterface, userInterface, enforcer)
+	otpInterface := otp.New(engineInterface)
+	enforcer := casbin.NewCasbin(ctx)
+	interface2 := policy2.New(policyInterface, enforcer)
+	authenticatedInterface := authenticated.New(whatsappInterface, policyInterface, sessionInterface, userInterface, otpInterface, interface2, enforcer)
 	userdatacenterInterface := userdatacenter.New(userInterface)
 	handlerHandler := handler.NewHandler(authenticatedInterface, interface2, userdatacenterInterface)
 	middlewareMiddleware := middleware.NewMiddleware(authenticatedInterface)

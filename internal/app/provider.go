@@ -11,8 +11,10 @@ import (
 	"github.com/kurniajigunawan/homestay/internal/driver/database"
 	"github.com/kurniajigunawan/homestay/internal/driver/redis"
 
+	otpRepo "github.com/kurniajigunawan/homestay/internal/repository/otp"
 	policyRepo "github.com/kurniajigunawan/homestay/internal/repository/policy"
 	sessionRepo "github.com/kurniajigunawan/homestay/internal/repository/session"
+	whatsappRepo "github.com/kurniajigunawan/homestay/internal/repository/thirdparty/whatsapp"
 	userRepo "github.com/kurniajigunawan/homestay/internal/repository/user"
 
 	authenticatedUsecase "github.com/kurniajigunawan/homestay/internal/usecase/authenticated"
@@ -34,6 +36,8 @@ var (
 		sessionRepo.New,
 		userRepo.New,
 		policyRepo.New,
+		whatsappRepo.New,
+		otpRepo.New,
 	)
 
 	usecaseSet = wire.NewSet(

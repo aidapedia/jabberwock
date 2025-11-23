@@ -20,6 +20,11 @@ type SecretConfig struct {
 	Tracer struct {
 		AddressURL string
 	}
+	Whatsapp struct {
+		Host    string
+		APIKey  string
+		Session string
+	}
 }
 
 // ServiceConfig is the configuration for the service

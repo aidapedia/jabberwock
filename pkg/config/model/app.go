@@ -1,5 +1,7 @@
 package model
 
+import "time"
+
 // App Configuration
 type App struct {
 	// Name of the application should be same like your github repository name
@@ -22,5 +24,10 @@ type App struct {
 
 	Auth struct {
 		Issuer string
+	}
+
+	Registration struct {
+		TTL               time.Duration
+		OTPResendInterval time.Duration
 	}
 }

@@ -23,9 +23,9 @@ func (u User) IsEmpty() bool {
 type Verified uint64
 
 // Binary representation of verification status
-// VerifiedNone  = 0000
-// VerifiedPhone = 0001
-// VerifiedEmail = 0010
+// VerifiedNone  = 0000 (0)
+// VerifiedPhone = 0001 (1)
+// VerifiedEmail = 0010 (2)
 const (
 	VerifiedNone  Verified = 0
 	VerifiedPhone Verified = 1

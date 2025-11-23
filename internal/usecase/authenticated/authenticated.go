@@ -187,6 +187,9 @@ func (uc *Usecase) Register(ctx context.Context, req RegisterRequest) (err error
 		"phone": req.Phone,
 	}
 	for key, identity := range identities {
+		if identity == "" {
+			continue
+		}
 		var exist bool
 		exist, err = uc.isExistUser(ctx, identity)
 		if err != nil {
@@ -198,23 +201,14 @@ func (uc *Usecase) Register(ctx context.Context, req RegisterRequest) (err error
 				ghttp.Metadata(http.StatusBadRequest, fmt.Sprintf("%s is already registered", key)))
 		}
 	}
-	// Create user
-	newUser := &userRepo.User{
-		Name:     req.Name,
-		Phone:    req.Phone,
-		Password: ghash.Hash(req.Password),
-		Status:   userRepo.StatusActive,
-		Email:    req.Email,
-	}
-	err = uc.userRepo.CreateUser(ctx, newUser)
-	if err != nil {
-		return gers.NewWithMetadata(err,
-			ghttp.Metadata(http.StatusInternalServerError, cerror.ErrorMessageTryAgain.Error()))
-	}
 
-	// craete new user role
-	err = uc.policyRepo.AssignRole(ctx, newUser.ID, policyRepo.MemberRole)
-	if err != nil {
+	// Request verify identity
+	if err = uc.sendOTPVerification(ctx, SendOTPVerificationRequest{
+		Phone:    req.Phone,
+		Name:     req.Name,
+		Password: ghash.Hash(req.Password),
+		Method:   MethodWhatsappText,
+	}); err != nil {
 		return gers.NewWithMetadata(err,
 			ghttp.Metadata(http.StatusInternalServerError, cerror.ErrorMessageTryAgain.Error()))
 	}
