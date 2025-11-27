@@ -3,7 +3,7 @@ module github.com/aidapedia/jabberwock
 go 1.24.2
 
 require (
-	github.com/aidapedia/gdk v0.0.6-0.20251120090626-d6db1933fd99
+	github.com/aidapedia/gdk v0.0.6-0.20251127083341-cec1a98765eb
 	github.com/bytedance/sonic v1.13.3
 	github.com/casbin/casbin/v2 v2.127.0
 	github.com/gofiber/fiber/v3 v3.0.0-beta.4

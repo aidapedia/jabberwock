@@ -23,7 +23,7 @@ func (e *Middleware) CheckAccess() gmiddleware.Middleware {
 		}
 
 		// Since the user id session will get once each request, we can add the user data to the context
-		// c.Set(commonCtx.ContextKeyUserID, userID)
+		// c.Locals(commonCtx.ContextKeyUserID, userID)
 		return c.Next()
 	}
 }
