@@ -1,0 +1,8 @@
+DROP TABLE IF EXISTS user_roles;
+DROP TABLE IF EXISTS resources_permissions;
+DROP TABLE IF EXISTS role_permissions;
+DROP TABLE IF EXISTS permissions;
+DROP TABLE IF EXISTS resources;
+DROP TABLE IF EXISTS roles;
+
+ALTER TABLE "users" ADD COLUMN "type" SMALLINT NOT NULL;

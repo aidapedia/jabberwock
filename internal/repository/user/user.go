@@ -15,7 +15,7 @@ func (r *Repository) FindByID(ctx context.Context, id int64) (resp User, err err
 	args := []interface{}{id}
 	err = r.database.QueryRowContext(ctx, query, args...).
 		Scan(&resp.ID, &resp.Name, &resp.Phone, &resp.Email, &resp.Password,
-			&resp.Type, &resp.Status, &resp.IsVerified, &resp.AvatarURL, &resp.CreatedAt, &resp.UpdatedAt)
+			&resp.Status, &resp.IsVerified, &resp.AvatarURL, &resp.CreatedAt, &resp.UpdatedAt)
 	if err != nil {
 		return resp, err
 	}
@@ -31,7 +31,7 @@ func (r *Repository) FindByPhone(ctx context.Context, phone string) (resp User, 
 	args := []interface{}{phone}
 	err = r.database.QueryRowContext(ctx, query, args...).
 		Scan(&resp.ID, &resp.Name, &resp.Phone, &resp.Email, &resp.Password,
-			&resp.Type, &resp.Status, &resp.IsVerified, &resp.AvatarURL, &resp.CreatedAt, &resp.UpdatedAt)
+			&resp.Status, &resp.IsVerified, &resp.AvatarURL, &resp.CreatedAt, &resp.UpdatedAt)
 	if err != nil {
 		return resp, err
 	}
@@ -47,7 +47,7 @@ func (r *Repository) FindByEmail(ctx context.Context, email string) (resp User, 
 	args := []interface{}{email}
 	err = r.database.QueryRowContext(ctx, query, args...).
 		Scan(&resp.ID, &resp.Name, &resp.Phone, &resp.Email, &resp.Password,
-			&resp.Type, &resp.Status, &resp.IsVerified, &resp.AvatarURL, &resp.CreatedAt, &resp.UpdatedAt)
+			&resp.Status, &resp.IsVerified, &resp.AvatarURL, &resp.CreatedAt, &resp.UpdatedAt)
 	if err != nil {
 		return resp, err
 	}
@@ -74,9 +74,9 @@ func (r *Repository) CreateUser(ctx context.Context, user *User) (err error) {
 	defer span.Finish(err)
 
 	query := queryCreateUser
-	args := []interface{}{user.Name, user.Phone, user.Email, user.Password, user.Type,
+	args := []interface{}{user.Name, user.Phone, user.Email, user.Password,
 		user.Status, user.IsVerified, user.AvatarURL, time.Now(), time.Now()}
-	_, err = r.database.ExecContext(ctx, query, args...)
+	err = r.database.QueryRowContext(ctx, query, args...).Scan(&user.ID)
 	if err != nil {
 		return err
 	}
