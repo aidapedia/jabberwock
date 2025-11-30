@@ -21,8 +21,6 @@ type App struct {
 	}
 
 	Auth struct {
-		Issuer     string
-		ModelPath  string
-		PolicyPath string
+		Issuer string
 	}
 }

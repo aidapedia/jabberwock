@@ -11,7 +11,6 @@ type User struct {
 	Phone      string
 	IsVerified Verified
 	Status     Status
-	Type       Type
 
 	CreatedAt time.Time
 	UpdatedAt time.Time
