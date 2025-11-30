@@ -54,9 +54,17 @@ func main() {
 	time.Local = loc
 
 	// Initialize HTTP server
-	err = app.InitHTTPServer(ctx).ListenAndServe()
+	app := app.InitHTTPServer(ctx)
+
+	err = app.LoadPolicy(ctx)
 	if err != nil {
-		log.ErrorCtx(ctx, "Failed to initialize tracer", zap.Error(err))
+		log.ErrorCtx(ctx, "Failed to load policy", zap.Error(err))
+		os.Exit(0)
+	}
+
+	err = app.Run()
+	if err != nil {
+		log.ErrorCtx(ctx, "Failed to run http server", zap.Error(err))
 		os.Exit(0)
 	}
 }

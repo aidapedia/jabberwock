@@ -9,11 +9,13 @@ import (
 func Register(app *fiber.App, handler *handler.Handler, middleware *middleware.Middleware) {
 	// Public Routes
 	app.Get("/ping", handler.Ping)
-	app.Post("/login", handler.Login)
-	app.Post("/register", handler.Register)
+	app.Group("/auth").
+		Post("/login", handler.Login).
+		Post("/register", handler.Register)
 
 	// Protected Routes
-	auth := app.Group("", middleware.CheckAccess())
-	auth.Post("/logout", handler.Logout)
-	auth.Get("/user/:id", handler.GetUserByID)
+	protected := app.Group("", middleware.CheckAccess())
+	protected.Group("/auth").
+		Post("/logout", handler.Logout)
+	protected.Get("/user/:id", handler.GetUserByID)
 }

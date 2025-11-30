@@ -8,9 +8,11 @@ package app
 
 import (
 	"context"
+	"github.com/aidapedia/jabberwock/internal/app/service"
 	"github.com/aidapedia/jabberwock/internal/interface/http"
 	"github.com/aidapedia/jabberwock/internal/interface/http/handler"
 	"github.com/aidapedia/jabberwock/internal/interface/http/middleware"
+	"github.com/aidapedia/jabberwock/internal/repository/policy"
 	"github.com/aidapedia/jabberwock/internal/repository/session"
 	"github.com/aidapedia/jabberwock/internal/repository/user"
 	"github.com/aidapedia/jabberwock/internal/usecase/authenticated"
@@ -23,16 +25,18 @@ import (
 
 // Injectors from wire.go:
 
-func InitHTTPServer(ctx context.Context) http.HTTPServiceInterface {
+func InitHTTPServer(ctx context.Context) *service.ServiceHTTP {
 	db := databaseProvider(ctx)
+	policyInterface := policy.New(db)
 	engineInterface := redisProvider(ctx)
 	sessionInterface := session.New(db, engineInterface)
 	userInterface := user.New(db)
 	enforcer := casbinProvider(ctx)
-	authenticatedInterface := authenticated.New(sessionInterface, userInterface, enforcer)
+	authenticatedInterface := authenticated.New(policyInterface, sessionInterface, userInterface, enforcer)
 	userdatacenterInterface := userdatacenter.New(userInterface)
 	handlerHandler := handler.NewHandler(authenticatedInterface, userdatacenterInterface)
 	middlewareMiddleware := middleware.NewMiddleware(authenticatedInterface)
 	httpServiceInterface := http.NewHTTPService(handlerHandler, middlewareMiddleware)
-	return httpServiceInterface
+	serviceHTTP := service.NewServiceHTTP(httpServiceInterface, authenticatedInterface)
+	return serviceHTTP
 }

@@ -35,10 +35,10 @@
 * Database migration.
 * Easy debug with context logger.
 * Open Telemetry Tracer.
+* RBAC feature.
 
 ## Roadmap
 We have a lot of things to do with this framework. Currently, we are working on:
-* RBAC feature.
 * Sample cron job application.
 * Sample message queue application.
 * Provide wiki and documentation. To help understand on our feature inside.
