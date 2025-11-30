@@ -6,12 +6,13 @@ import (
 )
 
 type Interface interface {
-	// CreateRole(ctx context.Context, role Role) (err error)
-	// CreatePermission(ctx context.Context, permission Permission) (err error)
-	// CreateResource(ctx context.Context, resource Resource) (err error)
-	// CreateRolePermission(ctx context.Context, roleID, permissionID int64) (err error)
-	// CreateResourcePermission(ctx context.Context, resourceID, permissionID int64) (err error)
+	CreateResource(ctx context.Context, resource Resource) (err error)
+	AssignResource(ctx context.Context, permissionID int64, resourceID int64) (err error)
 
+	CreatePermission(ctx context.Context, permission Permission) (err error)
+	AssignPermission(ctx context.Context, roleID int64, permissionID int64) (err error)
+
+	CreateRole(ctx context.Context, role Role) (err error)
 	AssignRole(ctx context.Context, userID int64, roleID int64) (err error)
 	GetRoleByUserID(ctx context.Context, userID int64) (resp GetRoleByUserIDResp, err error)
 

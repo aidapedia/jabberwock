@@ -7,6 +7,19 @@ import (
 	"github.com/aidapedia/gdk/telemetry/tracer"
 )
 
+func (r *Repository) CreateRole(ctx context.Context, role Role) (err error) {
+	span, ctx := tracer.StartSpanFromContext(ctx, "PolicyRepository/CreateRole")
+	defer span.Finish(err)
+
+	query := queryCreateRole
+	args := []interface{}{role.Name, role.Description}
+	_, err = r.database.ExecContext(ctx, query, args...)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (r *Repository) AssignRole(ctx context.Context, userID int64, roleID int64) (err error) {
 	span, ctx := tracer.StartSpanFromContext(ctx, "PolicyRepository/AssignRole")
 	defer span.Finish(err)
@@ -72,4 +85,56 @@ func (r *Repository) LoadPolicy(ctx context.Context, serviceType ServiceType) (r
 	}
 
 	return resp, nil
+}
+
+func (r *Repository) CreateResource(ctx context.Context, resource Resource) (err error) {
+	span, ctx := tracer.StartSpanFromContext(ctx, "PolicyRepository/CreateResource")
+	defer span.Finish(err)
+
+	query := queryCreateResource
+	args := []interface{}{resource.Type, resource.Method, resource.Path}
+	_, err = r.database.ExecContext(ctx, query, args...)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *Repository) AssignResource(ctx context.Context, permissionID int64, resourceID int64) (err error) {
+	span, ctx := tracer.StartSpanFromContext(ctx, "PolicyRepository/AssignResource")
+	defer span.Finish(err)
+
+	query := queryAssignResource
+	args := []interface{}{permissionID, resourceID}
+	_, err = r.database.ExecContext(ctx, query, args...)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *Repository) CreatePermission(ctx context.Context, permission Permission) (err error) {
+	span, ctx := tracer.StartSpanFromContext(ctx, "PolicyRepository/CreatePermission")
+	defer span.Finish(err)
+
+	query := queryCreatePermission
+	args := []interface{}{permission.Name, permission.Description}
+	_, err = r.database.ExecContext(ctx, query, args...)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *Repository) AssignPermission(ctx context.Context, roleID int64, permissionID int64) (err error) {
+	span, ctx := tracer.StartSpanFromContext(ctx, "PolicyRepository/AssignPermission")
+	defer span.Finish(err)
+
+	query := queryAssignPermission
+	args := []interface{}{roleID, permissionID}
+	_, err = r.database.ExecContext(ctx, query, args...)
+	if err != nil {
+		return err
+	}
+	return nil
 }

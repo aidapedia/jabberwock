@@ -6,8 +6,28 @@ const (
 )
 
 const (
+	queryCreateRole = `
+		INSERT INTO roles (name, description)
+		VALUES ($1, $2);
+	`
+	queryCreatePermission = `
+		INSERT INTO permissions (name, description)
+		VALUES ($1, $2);
+	`
+	queryCreateResource = `
+		INSERT INTO resources ("type", method, path)
+		VALUES ($1, $2, $3);
+	`
+	queryAssignResource = `
+		INSERT INTO resource_permissions (resource_id, permission_id)
+		VALUES ($1, $2);
+	`
 	queryAssignRole = `
 		INSERT INTO user_roles (user_id, role_id)
+		VALUES ($1, $2);
+	`
+	queryAssignPermission = `
+		INSERT INTO role_permissions (role_id, permission_id)
 		VALUES ($1, $2);
 	`
 	queryGetRoleByUserID = `
