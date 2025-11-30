@@ -1,8 +1,8 @@
 package policy
 
 const (
-	AdminRole  = 1
-	MemberRole = 2
+	SuperAdminRole = 1
+	MemberRole     = 2
 )
 
 const (
