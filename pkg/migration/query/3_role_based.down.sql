@@ -1,3 +1,5 @@
+DROP INDEX IF EXISTS roles_name_key;
+
 DROP TABLE IF EXISTS user_roles;
 DROP TABLE IF EXISTS resources_permissions;
 DROP TABLE IF EXISTS role_permissions;

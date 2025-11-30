@@ -31,6 +31,8 @@ CREATE TABLE IF NOT EXISTS "roles"(
    "updated_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE UNIQUE INDEX IF NOT EXISTS roles_name_key ON roles ("name");
+
 CREATE TABLE IF NOT EXISTS "role_permissions"(
    "role_id" BIGINT NOT NULL,
    "permission_id" BIGINT NOT NULL,

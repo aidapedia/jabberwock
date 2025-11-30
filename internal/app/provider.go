@@ -5,12 +5,13 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"log"
 
+	"github.com/aidapedia/jabberwock/internal/app/service"
 	httpInterface "github.com/aidapedia/jabberwock/internal/interface/http"
 	"github.com/aidapedia/jabberwock/internal/interface/http/handler"
 	"github.com/aidapedia/jabberwock/internal/interface/http/middleware"
 	"github.com/aidapedia/jabberwock/pkg/config"
+	"go.uber.org/zap"
 
 	policyRepo "github.com/aidapedia/jabberwock/internal/repository/policy"
 	sessionRepo "github.com/aidapedia/jabberwock/internal/repository/session"
@@ -20,6 +21,7 @@ import (
 	userdatacenterUsecase "github.com/aidapedia/jabberwock/internal/usecase/userdatacenter"
 
 	gredisengine "github.com/aidapedia/gdk/cache/engine"
+	"github.com/aidapedia/gdk/log"
 	casbin "github.com/casbin/casbin/v2"
 	"github.com/casbin/casbin/v2/model"
 	casbinUtil "github.com/casbin/casbin/v2/util"
@@ -34,7 +36,7 @@ var DatabaseDriver *sql.DB
 func databaseProvider(ctx context.Context) *sql.DB {
 	cfg := config.GetConfig(ctx)
 	if cfg == nil {
-		log.Fatalf("failed to connect database: %v", errors.New("config is nil"))
+		log.FatalCtx(ctx, "failed to connect database: %v", zap.Error(errors.New("config is nil")))
 	}
 
 	dsn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
@@ -42,12 +44,12 @@ func databaseProvider(ctx context.Context) *sql.DB {
 
 	db, err := sql.Open("postgres", dsn)
 	if err != nil {
-		log.Fatalf("failed to connect database: %v", err)
+		log.FatalCtx(ctx, "failed to connect database: %v", zap.Error(err))
 	}
 
 	err = db.Ping()
 	if err != nil {
-		log.Fatalf("failed to connect database: %v", err)
+		log.FatalCtx(ctx, "failed to connect database: %v", zap.Error(err))
 	}
 
 	DatabaseDriver = db
@@ -57,7 +59,7 @@ func databaseProvider(ctx context.Context) *sql.DB {
 func redisProvider(ctx context.Context) gredisengine.Interface {
 	cfg := config.GetConfig(ctx)
 	if cfg == nil {
-		log.Fatalf("failed to connect redis: %v", errors.New("config is nil"))
+		log.FatalCtx(ctx, "failed to connect redis: %v", zap.Error(errors.New("config is nil")))
 	}
 
 	redis, err := gredisengine.NewGoRedisClient(gredisengine.GoRedisClientOpt{
@@ -69,7 +71,7 @@ func redisProvider(ctx context.Context) gredisengine.Interface {
 		},
 	})
 	if err != nil {
-		log.Fatalf("failed to connect redis: %v", err)
+		log.FatalCtx(ctx, "failed to connect redis: %v", zap.Error(err))
 	}
 
 	return redis
@@ -85,7 +87,7 @@ func casbinProvider(ctx context.Context) *casbin.Enforcer {
 
 	authEnforcer, err := casbin.NewEnforcer(m)
 	if err != nil {
-		log.Fatal(err)
+		log.FatalCtx(ctx, "Error when creating casbin enforcer", zap.Error(err))
 	}
 	authEnforcer.AddNamedMatchingFunc("g", "KeyMatch2", casbinUtil.KeyMatch2)
 
@@ -114,8 +116,11 @@ var (
 		driverSet,
 		repositorySet,
 		usecaseSet,
+
 		middleware.NewMiddleware,
 		handler.NewHandler,
 		httpInterface.NewHTTPService,
+
+		service.NewServiceHTTP,
 	)
 )
