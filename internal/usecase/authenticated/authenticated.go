@@ -14,6 +14,7 @@ import (
 	"github.com/aidapedia/gdk/telemetry/tracer"
 	gvalidation "github.com/aidapedia/gdk/validation"
 	cerror "github.com/aidapedia/jabberwock/internal/common/error"
+	policyRepo "github.com/aidapedia/jabberwock/internal/repository/policy"
 	userRepo "github.com/aidapedia/jabberwock/internal/repository/user"
 
 	sessionRepo "github.com/aidapedia/jabberwock/internal/repository/session"
@@ -58,7 +59,12 @@ func (uc *Usecase) CheckAccessToken(ctx context.Context, req CheckAccessTokenPay
 	}
 
 	method, path := ParseElementID(req.ElementID)
-	result, err := uc.enforcer.Enforce(role, path, method)
+	result, err := uc.enforcer.Enforce(stdPolicy(policyRepo.Policy{
+		Role:   role,
+		Path:   path,
+		Type:   "http",
+		Method: method,
+	})...)
 	if err != nil {
 		return gers.NewWithMetadata(err, ghttp.Metadata(http.StatusUnauthorized, "Unauthorized"))
 	}
@@ -101,8 +107,25 @@ func (uc *Usecase) Login(ctx context.Context, req LoginRequest) (resp LoginRespo
 		return LoginResponse{}, err
 	}
 
+	roles, err := uc.policyRepo.GetRoleByUserID(ctx, user.ID)
+	if err != nil {
+		return LoginResponse{}, gers.NewWithMetadata(err, ghttp.Metadata(http.StatusInternalServerError, cerror.ErrorMessageTryAgain.Error()))
+	}
+
+	if len(roles) == 0 {
+		return LoginResponse{}, gers.NewWithMetadata(errors.New("user has no role"), ghttp.Metadata(http.StatusInternalServerError, cerror.ErrorMessageTryAgain.Error()))
+	}
+
+	var role string
+	for _, r := range roles {
+		if role != "" {
+			role += ","
+		}
+		role += r.Name
+	}
+
 	// Generate token
-	tokenResp, err := uc.generateToken(ctx, user.ID, user.Type.String())
+	tokenResp, err := uc.generateToken(ctx, user.ID, role)
 	if err != nil {
 		return LoginResponse{}, gers.NewWithMetadata(err,
 			ghttp.Metadata(http.StatusInternalServerError, cerror.ErrorMessageTryAgain.Error()))
@@ -168,14 +191,21 @@ func (uc *Usecase) Register(ctx context.Context, req RegisterRequest) (err error
 		}
 	}
 	// Create user
-	err = uc.userRepo.CreateUser(ctx, &userRepo.User{
+	newUser := &userRepo.User{
 		Name:     req.Name,
 		Phone:    req.Phone,
 		Password: ghash.Hash(req.Password),
-		Type:     userRepo.TypeUser,
 		Status:   userRepo.StatusActive,
 		Email:    req.Email,
-	})
+	}
+	err = uc.userRepo.CreateUser(ctx, newUser)
+	if err != nil {
+		return gers.NewWithMetadata(err,
+			ghttp.Metadata(http.StatusInternalServerError, cerror.ErrorMessageTryAgain.Error()))
+	}
+
+	// craete new user role
+	err = uc.policyRepo.AssignRole(ctx, newUser.ID, policyRepo.MemberRole)
 	if err != nil {
 		return gers.NewWithMetadata(err,
 			ghttp.Metadata(http.StatusInternalServerError, cerror.ErrorMessageTryAgain.Error()))

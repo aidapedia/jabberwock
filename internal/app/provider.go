@@ -12,6 +12,7 @@ import (
 	"github.com/aidapedia/jabberwock/internal/interface/http/middleware"
 	"github.com/aidapedia/jabberwock/pkg/config"
 
+	policyRepo "github.com/aidapedia/jabberwock/internal/repository/policy"
 	sessionRepo "github.com/aidapedia/jabberwock/internal/repository/session"
 	userRepo "github.com/aidapedia/jabberwock/internal/repository/user"
 
@@ -20,6 +21,7 @@ import (
 
 	gredisengine "github.com/aidapedia/gdk/cache/engine"
 	casbin "github.com/casbin/casbin/v2"
+	"github.com/casbin/casbin/v2/model"
 	casbinUtil "github.com/casbin/casbin/v2/util"
 	"github.com/google/wire"
 	_ "github.com/lib/pq"
@@ -75,12 +77,18 @@ func redisProvider(ctx context.Context) gredisengine.Interface {
 
 // ProviderCasbin is a function to create a new casbin enforcer
 func casbinProvider(ctx context.Context) *casbin.Enforcer {
-	cfg := config.GetConfig(ctx)
-	authEnforcer, err := casbin.NewEnforcer(cfg.App.Auth.ModelPath, cfg.App.Auth.PolicyPath)
+	m := model.NewModel()
+	m.AddDef("r", "r", "sub, obj, act")
+	m.AddDef("p", "p", "sub, obj, act")
+	m.AddDef("e", "e", "some(where (p.eft == allow))")
+	m.AddDef("m", "m", `r.sub == "superadmin" || (r.sub == p.sub && regexMatch(r.obj, p.obj) && keyMatch2(r.act, p.act))`)
+
+	authEnforcer, err := casbin.NewEnforcer(m)
 	if err != nil {
 		log.Fatal(err)
 	}
 	authEnforcer.AddNamedMatchingFunc("g", "KeyMatch2", casbinUtil.KeyMatch2)
+
 	return authEnforcer
 }
 
@@ -94,6 +102,7 @@ var (
 	repositorySet = wire.NewSet(
 		sessionRepo.New,
 		userRepo.New,
+		policyRepo.New,
 	)
 
 	usecaseSet = wire.NewSet(

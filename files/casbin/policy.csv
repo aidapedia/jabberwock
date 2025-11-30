@@ -1,7 +1,0 @@
-p, ALL, /logout, POST
-p, ALL, /user/:id, GET
-
-g, admin, ALL
-g, user, ALL
-
-g, admin, MANAGE

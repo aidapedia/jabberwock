@@ -21,6 +21,10 @@ github.com/aidapedia/gdk v0.0.6-0.20251120090626-d6db1933fd99 h1:RcmGZS3CWVEiFtj
 github.com/aidapedia/gdk v0.0.6-0.20251120090626-d6db1933fd99/go.mod h1:uxujxODJXFF6OQNeCEpDxIaJZL4V3/dvcr/LY/pBpmI=
 github.com/aidapedia/gdk v0.0.6-0.20251127083341-cec1a98765eb h1:aJA/Id+eHK/ek9W3D6Dfv0/drIUJdx8IPkax3zVWOAw=
 github.com/aidapedia/gdk v0.0.6-0.20251127083341-cec1a98765eb/go.mod h1:uxujxODJXFF6OQNeCEpDxIaJZL4V3/dvcr/LY/pBpmI=
+github.com/aidapedia/gdk v0.0.7-0.20251130095559-3fccf98d7ce2 h1:JG2nHtzAlnmJcq4WmSVh+tiNvOIvcL1+Qbx8t7NRXTk=
+github.com/aidapedia/gdk v0.0.7-0.20251130095559-3fccf98d7ce2/go.mod h1:uxujxODJXFF6OQNeCEpDxIaJZL4V3/dvcr/LY/pBpmI=
+github.com/aidapedia/gdk v0.0.7-0.20251130100038-6478a370116b h1:PDtDssEoTniT8vKnUQkAtRk7txkZ5A5QY2CCIyj9P64=
+github.com/aidapedia/gdk v0.0.7-0.20251130100038-6478a370116b/go.mod h1:uxujxODJXFF6OQNeCEpDxIaJZL4V3/dvcr/LY/pBpmI=
 github.com/alecthomas/template v0.0.0-20160405071501-a0175ee3bccc/go.mod h1:LOuyumcjzFXgccqObfd/Ljyb9UuFJ6TxHnclSeseNhc=
 github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751/go.mod h1:LOuyumcjzFXgccqObfd/Ljyb9UuFJ6TxHnclSeseNhc=
 github.com/alecthomas/units v0.0.0-20151022065526-2efee857e7cf/go.mod h1:ybxpYRFXyAe+OPACYpWeL0wqObRcbAqCMya13uyzqw0=
