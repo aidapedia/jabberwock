@@ -1,6 +1,7 @@
 package model
 
 import (
+	policyRepo "github.com/aidapedia/jabberwock/internal/repository/policy"
 	authUC "github.com/aidapedia/jabberwock/internal/usecase/authenticated"
 	"github.com/gofiber/fiber/v3"
 )
@@ -86,5 +87,47 @@ func (e *RegisterRequest) ToUsecase(c fiber.Ctx) authUC.RegisterRequest {
 		Phone:    e.Phone,
 		Email:    e.Email,
 		Password: e.Password,
+	}
+}
+
+type AddResourceRequest struct {
+	Type   string `json:"type" validate:"oneof=http grpc"`
+	Method string `json:"method"`
+	Path   string `json:"path" validate:"required"`
+}
+
+func (e *AddResourceRequest) ToUsecase(c fiber.Ctx) authUC.AddResourceRequest {
+	return authUC.AddResourceRequest{
+		Type:   policyRepo.ServiceType(e.Type),
+		Method: e.Method,
+		Path:   e.Path,
+	}
+}
+
+type AddPermissionRequest struct {
+	Name              string  `json:"name" validate:"required"`
+	Description       string  `json:"description" validate:"required"`
+	AssignToResources []int64 `json:"assign_to_resources" `
+}
+
+func (e *AddPermissionRequest) ToUsecase(c fiber.Ctx) authUC.AddPermissionRequest {
+	return authUC.AddPermissionRequest{
+		Name:              e.Name,
+		Description:       e.Description,
+		AssignToResources: e.AssignToResources,
+	}
+}
+
+type AddRoleRequest struct {
+	Name                string  `json:"name" validate:"required"`
+	Description         string  `json:"description" validate:"required"`
+	AssignToPermissions []int64 `json:"assign_to_permissions"`
+}
+
+func (e *AddRoleRequest) ToUsecase(c fiber.Ctx) authUC.AddRoleRequest {
+	return authUC.AddRoleRequest{
+		Name:                e.Name,
+		Description:         e.Description,
+		AssignToPermissions: e.AssignToPermissions,
 	}
 }

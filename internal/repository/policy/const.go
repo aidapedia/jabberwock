@@ -8,27 +8,25 @@ const (
 const (
 	queryCreateRole = `
 		INSERT INTO roles (name, description)
-		VALUES ($1, $2);
+		VALUES ($1, $2) RETURNING id;
 	`
 	queryCreatePermission = `
 		INSERT INTO permissions (name, description)
-		VALUES ($1, $2);
+		VALUES ($1, $2) RETURNING id;
 	`
 	queryCreateResource = `
 		INSERT INTO resources ("type", method, path)
-		VALUES ($1, $2, $3);
+		VALUES ($1, $2, $3) RETURNING id;
 	`
-	queryAssignResource = `
+	queryBulkAssignResource = `
 		INSERT INTO resource_permissions (resource_id, permission_id)
-		VALUES ($1, $2);
 	`
 	queryAssignRole = `
 		INSERT INTO user_roles (user_id, role_id)
 		VALUES ($1, $2);
 	`
-	queryAssignPermission = `
+	queryBulkAssignPermission = `
 		INSERT INTO role_permissions (role_id, permission_id)
-		VALUES ($1, $2);
 	`
 	queryGetRoleByUserID = `
 		SELECT r.name, r.description

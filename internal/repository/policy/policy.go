@@ -3,6 +3,8 @@ package policy
 import (
 	"context"
 	"database/sql"
+	"fmt"
+	"strings"
 
 	"github.com/aidapedia/gdk/telemetry/tracer"
 )
@@ -13,7 +15,7 @@ func (r *Repository) CreateRole(ctx context.Context, role Role) (err error) {
 
 	query := queryCreateRole
 	args := []interface{}{role.Name, role.Description}
-	_, err = r.database.ExecContext(ctx, query, args...)
+	err = r.database.QueryRowContext(ctx, query, args...).Scan(&role.ID)
 	if err != nil {
 		return err
 	}
@@ -93,19 +95,29 @@ func (r *Repository) CreateResource(ctx context.Context, resource Resource) (err
 
 	query := queryCreateResource
 	args := []interface{}{resource.Type, resource.Method, resource.Path}
-	_, err = r.database.ExecContext(ctx, query, args...)
+	err = r.database.QueryRowContext(ctx, query, args...).Scan(&resource.ID)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (r *Repository) AssignResource(ctx context.Context, permissionID int64, resourceID int64) (err error) {
-	span, ctx := tracer.StartSpanFromContext(ctx, "PolicyRepository/AssignResource")
+func (r *Repository) BulkAssignResources(ctx context.Context, permissionID int64, resourceID []int64) (err error) {
+	span, ctx := tracer.StartSpanFromContext(ctx, "PolicyRepository/BulkAssignResources")
 	defer span.Finish(err)
 
-	query := queryAssignResource
-	args := []interface{}{permissionID, resourceID}
+	query := queryBulkAssignResource
+	args := []interface{}{}
+
+	var valCount int
+	var values []string
+	for _, resourceID := range resourceID {
+		values = append(values, fmt.Sprintf("($%d, $%d)", valCount+1, valCount+2))
+		args = append(args, permissionID, resourceID)
+		valCount += 2
+	}
+	query += fmt.Sprintf("VALUES %s;", strings.Join(values, ","))
+
 	_, err = r.database.ExecContext(ctx, query, args...)
 	if err != nil {
 		return err
@@ -119,19 +131,31 @@ func (r *Repository) CreatePermission(ctx context.Context, permission Permission
 
 	query := queryCreatePermission
 	args := []interface{}{permission.Name, permission.Description}
-	_, err = r.database.ExecContext(ctx, query, args...)
+	err = r.database.QueryRowContext(ctx, query, args...).Scan(&permission.ID)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (r *Repository) AssignPermission(ctx context.Context, roleID int64, permissionID int64) (err error) {
-	span, ctx := tracer.StartSpanFromContext(ctx, "PolicyRepository/AssignPermission")
+func (r *Repository) BulkAssignPermissions(ctx context.Context, roleID int64, permissionID []int64) (err error) {
+	span, ctx := tracer.StartSpanFromContext(ctx, "PolicyRepository/BulkAssignPermissions")
 	defer span.Finish(err)
 
-	query := queryAssignPermission
-	args := []interface{}{roleID, permissionID}
+	query := queryBulkAssignPermission
+	args := []interface{}{}
+
+	var (
+		valCount int
+		values   []string
+	)
+	for _, permissionID := range permissionID {
+		values = append(values, fmt.Sprintf("($%d, $%d)", valCount+1, valCount+2))
+		args = append(args, roleID, permissionID)
+		valCount += 2
+	}
+	query += fmt.Sprintf("VALUES %s;", strings.Join(values, ","))
+
 	_, err = r.database.ExecContext(ctx, query, args...)
 	if err != nil {
 		return err
