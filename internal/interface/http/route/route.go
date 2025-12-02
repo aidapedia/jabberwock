@@ -17,5 +17,9 @@ func Register(app *fiber.App, handler *handler.Handler, middleware *middleware.M
 	protected := app.Group("", middleware.CheckAccess())
 	protected.Group("/auth").
 		Post("/logout", handler.Logout)
+	protected.Group("/policy").
+		Post("/resource", handler.AddResource).
+		Post("/permission", handler.AddPermission).
+		Post("/role", handler.AddRole)
 	protected.Get("/user/:id", handler.GetUserByID)
 }

@@ -7,10 +7,10 @@ import (
 
 type Interface interface {
 	CreateResource(ctx context.Context, resource Resource) (err error)
-	AssignResource(ctx context.Context, permissionID int64, resourceID int64) (err error)
+	BulkAssignResources(ctx context.Context, permissionID int64, resourceID []int64) (err error)
 
 	CreatePermission(ctx context.Context, permission Permission) (err error)
-	AssignPermission(ctx context.Context, roleID int64, permissionID int64) (err error)
+	BulkAssignPermissions(ctx context.Context, roleID int64, permissionID []int64) (err error)
 
 	CreateRole(ctx context.Context, role Role) (err error)
 	AssignRole(ctx context.Context, userID int64, roleID int64) (err error)

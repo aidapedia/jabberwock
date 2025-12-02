@@ -1,6 +1,7 @@
 package authenticated
 
 import (
+	policyRepo "github.com/aidapedia/jabberwock/internal/repository/policy"
 	userRepo "github.com/aidapedia/jabberwock/internal/repository/user"
 )
 
@@ -60,4 +61,22 @@ type RefreshTokenResponse struct {
 	TokenType    string
 	AccessToken  string
 	RefreshToken string
+}
+
+type AddResourceRequest struct {
+	Type   policyRepo.ServiceType
+	Method string
+	Path   string
+}
+
+type AddPermissionRequest struct {
+	Name              string
+	Description       string
+	AssignToResources []int64
+}
+
+type AddRoleRequest struct {
+	Name                string
+	Description         string
+	AssignToPermissions []int64
 }

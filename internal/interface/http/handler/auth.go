@@ -90,3 +90,60 @@ func (h *Handler) RefreshToken(c fiber.Ctx) error {
 		Data: resp,
 	}, nil)
 }
+
+func (h *Handler) AddResource(c fiber.Ctx) error {
+	span, ctx := tracer.StartSpanFromContext(c.Context(), "AuthHandler/AddResource")
+	defer span.Finish(nil)
+
+	var (
+		req model.AddResourceRequest
+	)
+	if err := c.Bind().Body(&req); err != nil {
+		return ghttp.JSONResponse(c, nil, gers.NewWithMetadata(err, ghttp.Metadata(http.StatusBadRequest, "Bad Request")))
+	}
+
+	err := h.authUsecase.AddResource(ctx, req.ToUsecase(c))
+	if err != nil {
+		return ghttp.JSONResponse(c, nil, err)
+	}
+
+	return ghttp.JSONResponse(c, nil, nil)
+}
+
+func (h *Handler) AddPermission(c fiber.Ctx) error {
+	span, ctx := tracer.StartSpanFromContext(c.Context(), "AuthHandler/AddPermission")
+	defer span.Finish(nil)
+
+	var (
+		req model.AddPermissionRequest
+	)
+	if err := c.Bind().Body(&req); err != nil {
+		return ghttp.JSONResponse(c, nil, gers.NewWithMetadata(err, ghttp.Metadata(http.StatusBadRequest, "Bad Request")))
+	}
+
+	err := h.authUsecase.AddPermission(ctx, req.ToUsecase(c))
+	if err != nil {
+		return ghttp.JSONResponse(c, nil, err)
+	}
+
+	return ghttp.JSONResponse(c, nil, nil)
+}
+
+func (h *Handler) AddRole(c fiber.Ctx) error {
+	span, ctx := tracer.StartSpanFromContext(c.Context(), "AuthHandler/AddRole")
+	defer span.Finish(nil)
+
+	var (
+		req model.AddRoleRequest
+	)
+	if err := c.Bind().Body(&req); err != nil {
+		return ghttp.JSONResponse(c, nil, gers.NewWithMetadata(err, ghttp.Metadata(http.StatusBadRequest, "Bad Request")))
+	}
+
+	err := h.authUsecase.AddRole(ctx, req.ToUsecase(c))
+	if err != nil {
+		return ghttp.JSONResponse(c, nil, err)
+	}
+
+	return ghttp.JSONResponse(c, nil, nil)
+}
