@@ -3,7 +3,7 @@ module github.com/aidapedia/jabberwock
 go 1.24.2
 
 require (
-	github.com/aidapedia/gdk v0.0.7-0.20251130100038-6478a370116b
+	github.com/aidapedia/gdk v0.0.7-0.20251204173222-dc0a8c1492de
 	github.com/bytedance/sonic v1.13.3
 	github.com/casbin/casbin/v2 v2.127.0
 	github.com/go-playground/validator/v10 v10.28.0
