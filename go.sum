@@ -15,8 +15,6 @@ github.com/Azure/go-ansiterm v0.0.0-20230124172434-306776ec8161/go.mod h1:xomTg6
 github.com/DataDog/datadog-go v3.2.0+incompatible/go.mod h1:LButxg5PwREeZtORoXG3tL4fMGNddJ+vMq1mwgfaqoQ=
 github.com/Microsoft/go-winio v0.6.2 h1:F2VQgta7ecxGYO8k3ZZz3RS8fVIXVxONVUPlNERoyfY=
 github.com/Microsoft/go-winio v0.6.2/go.mod h1:yd8OoFMLzJbo9gZq8j5qaps8bJ9aShtEA8Ipt1oGCvU=
-github.com/aidapedia/gdk v0.0.7-0.20251130100038-6478a370116b h1:PDtDssEoTniT8vKnUQkAtRk7txkZ5A5QY2CCIyj9P64=
-github.com/aidapedia/gdk v0.0.7-0.20251130100038-6478a370116b/go.mod h1:uxujxODJXFF6OQNeCEpDxIaJZL4V3/dvcr/LY/pBpmI=
 github.com/aidapedia/gdk v0.0.7-0.20251204173222-dc0a8c1492de h1:+rnRoRbp29B0jjPz3M1vIESHu+KQ8qqkg1+FgMt4WM0=
 github.com/aidapedia/gdk v0.0.7-0.20251204173222-dc0a8c1492de/go.mod h1:uxujxODJXFF6OQNeCEpDxIaJZL4V3/dvcr/LY/pBpmI=
 github.com/alecthomas/template v0.0.0-20160405071501-a0175ee3bccc/go.mod h1:LOuyumcjzFXgccqObfd/Ljyb9UuFJ6TxHnclSeseNhc=

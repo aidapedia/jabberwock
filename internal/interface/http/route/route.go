@@ -20,6 +20,12 @@ func Register(app *fiber.App, handler *handler.Handler, middleware *middleware.M
 	protected.Group("/policy").
 		Post("/resource", handler.AddResource).
 		Post("/permission", handler.AddPermission).
-		Post("/role", handler.AddRole)
+		Post("/role", handler.AddRole).
+		Put("/resource", handler.UpdateResource).
+		Put("/permission", handler.UpdatePermission).
+		Put("/role", handler.UpdateRole).
+		Delete("/resource/:id", handler.DeleteResource).
+		Delete("/permission/:id", handler.DeletePermission).
+		Delete("/role/:id", handler.DeleteRole)
 	protected.Get("/user/:id", handler.GetUserByID)
 }

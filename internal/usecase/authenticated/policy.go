@@ -63,7 +63,7 @@ func (u *Usecase) AddPermission(ctx context.Context, req AddPermissionRequest) (
 	}
 
 	if len(req.AssignToResources) > 0 {
-		err = u.policyRepo.BulkAssignResources(ctx, permission.ID, req.AssignToResources)
+		err = u.policyRepo.BulkAssignResources(ctx, nil, permission.ID, req.AssignToResources)
 		if err != nil {
 			return gers.NewWithMetadata(err,
 				ghttp.Metadata(http.StatusInternalServerError, cerror.ErrorMessageTryAgain.Error()))
@@ -88,7 +88,7 @@ func (u *Usecase) AddRole(ctx context.Context, req AddRoleRequest) (err error) {
 	}
 
 	if len(req.AssignToPermissions) > 0 {
-		err = u.policyRepo.BulkAssignPermissions(ctx, role.ID, req.AssignToPermissions)
+		err = u.policyRepo.BulkAssignPermissions(ctx, nil, role.ID, req.AssignToPermissions)
 		if err != nil {
 			return gers.NewWithMetadata(err,
 				ghttp.Metadata(http.StatusInternalServerError, cerror.ErrorMessageTryAgain.Error()))
@@ -107,4 +107,95 @@ func stdPolicy(policy policyRepo.Policy) []interface{} {
 		fmt.Sprintf("%s:%s", policy.Type, policy.Method),
 		policy.Path,
 	}
+}
+
+func (u *Usecase) UpdateResource(ctx context.Context, req UpdateResourceRequest) (err error) {
+	span, ctx := tracer.StartSpanFromContext(ctx, "AuthenticateUsecase/UpdateResource")
+	defer span.Finish(err)
+
+	err = u.policyRepo.UpdateResource(ctx, policyRepo.Resource{
+		ID:     req.ID,
+		Type:   req.Type,
+		Method: req.Method,
+		Path:   req.Path,
+	})
+	if err != nil {
+		return gers.NewWithMetadata(err,
+			ghttp.Metadata(http.StatusInternalServerError, cerror.ErrorMessageTryAgain.Error()))
+	}
+
+	return nil
+}
+
+func (u *Usecase) UpdatePermission(ctx context.Context, req UpdatePermissionRequest) (err error) {
+	span, ctx := tracer.StartSpanFromContext(ctx, "AuthenticateUsecase/UpdatePermission")
+	defer span.Finish(err)
+
+	err = u.policyRepo.UpdatePermission(ctx, policyRepo.Permission{
+		ID:          req.ID,
+		Name:        req.Name,
+		Description: req.Description,
+	})
+	if err != nil {
+		return gers.NewWithMetadata(err,
+			ghttp.Metadata(http.StatusInternalServerError, cerror.ErrorMessageTryAgain.Error()))
+	}
+
+	return nil
+}
+
+func (u *Usecase) UpdateRole(ctx context.Context, req UpdateRoleRequest) (err error) {
+	span, ctx := tracer.StartSpanFromContext(ctx, "AuthenticateUsecase/UpdateRole")
+	defer span.Finish(err)
+
+	err = u.policyRepo.UpdateRole(ctx, policyRepo.Role{
+		ID:          req.ID,
+		Name:        req.Name,
+		Description: req.Description,
+	})
+	if err != nil {
+		return gers.NewWithMetadata(err,
+			ghttp.Metadata(http.StatusInternalServerError, cerror.ErrorMessageTryAgain.Error()))
+	}
+
+	return nil
+}
+
+func (u *Usecase) DeleteResource(ctx context.Context, req DeleteResourceRequest) (err error) {
+	span, ctx := tracer.StartSpanFromContext(ctx, "AuthenticateUsecase/DeleteResource")
+	defer span.Finish(err)
+
+	err = u.policyRepo.DeleteResource(ctx, req.ID)
+	if err != nil {
+		return gers.NewWithMetadata(err,
+			ghttp.Metadata(http.StatusInternalServerError, cerror.ErrorMessageTryAgain.Error()))
+	}
+
+	return nil
+}
+
+func (u *Usecase) DeletePermission(ctx context.Context, req DeletePermissionRequest) (err error) {
+	span, ctx := tracer.StartSpanFromContext(ctx, "AuthenticateUsecase/DeletePermission")
+	defer span.Finish(err)
+
+	err = u.policyRepo.DeletePermission(ctx, req.ID)
+	if err != nil {
+		return gers.NewWithMetadata(err,
+			ghttp.Metadata(http.StatusInternalServerError, cerror.ErrorMessageTryAgain.Error()))
+	}
+
+	return nil
+}
+
+func (u *Usecase) DeleteRole(ctx context.Context, req DeleteRoleRequest) (err error) {
+	span, ctx := tracer.StartSpanFromContext(ctx, "AuthenticateUsecase/DeleteRole")
+	defer span.Finish(err)
+
+	err = u.policyRepo.DeleteRole(ctx, req.ID)
+	if err != nil {
+		return gers.NewWithMetadata(err,
+			ghttp.Metadata(http.StatusInternalServerError, cerror.ErrorMessageTryAgain.Error()))
+	}
+
+	return nil
 }

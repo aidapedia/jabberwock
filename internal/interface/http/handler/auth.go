@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/aidapedia/jabberwock/internal/interface/http/handler/model"
@@ -9,6 +10,9 @@ import (
 	gers "github.com/aidapedia/gdk/error"
 	ghttp "github.com/aidapedia/gdk/http"
 	"github.com/aidapedia/gdk/telemetry/tracer"
+	"github.com/aidapedia/gdk/util"
+
+	authUC "github.com/aidapedia/jabberwock/internal/usecase/authenticated"
 )
 
 func (h *Handler) Login(c fiber.Ctx) error {
@@ -141,6 +145,123 @@ func (h *Handler) AddRole(c fiber.Ctx) error {
 	}
 
 	err := h.authUsecase.AddRole(ctx, req.ToUsecase(c))
+	if err != nil {
+		return ghttp.JSONResponse(c, nil, err)
+	}
+
+	return ghttp.JSONResponse(c, nil, nil)
+}
+
+func (h *Handler) DeleteResource(c fiber.Ctx) error {
+	span, ctx := tracer.StartSpanFromContext(c.Context(), "AuthHandler/DeleteResource")
+	defer span.Finish(nil)
+
+	id := util.ToInt64(c.Params("id"))
+	if id == 0 {
+		err := errors.New("invalid id")
+		return ghttp.JSONResponse(c, nil, gers.NewWithMetadata(err, ghttp.Metadata(http.StatusBadRequest, "Bad Request")))
+	}
+
+	err := h.authUsecase.DeleteResource(ctx, authUC.DeleteResourceRequest{
+		ID: id,
+	})
+	if err != nil {
+		return ghttp.JSONResponse(c, nil, err)
+	}
+
+	return ghttp.JSONResponse(c, nil, nil)
+}
+
+func (h *Handler) DeletePermission(c fiber.Ctx) error {
+	span, ctx := tracer.StartSpanFromContext(c.Context(), "AuthHandler/DeletePermission")
+	defer span.Finish(nil)
+
+	id := util.ToInt64(c.Params("id"))
+	if id == 0 {
+		err := errors.New("invalid id")
+		return ghttp.JSONResponse(c, nil, gers.NewWithMetadata(err, ghttp.Metadata(http.StatusBadRequest, "Bad Request")))
+	}
+
+	err := h.authUsecase.DeletePermission(ctx, authUC.DeletePermissionRequest{
+		ID: id,
+	})
+	if err != nil {
+		return ghttp.JSONResponse(c, nil, err)
+	}
+
+	return ghttp.JSONResponse(c, nil, nil)
+}
+
+func (h *Handler) DeleteRole(c fiber.Ctx) error {
+	span, ctx := tracer.StartSpanFromContext(c.Context(), "AuthHandler/DeleteRole")
+	defer span.Finish(nil)
+
+	id := util.ToInt64(c.Params("id"))
+	if id == 0 {
+		err := errors.New("invalid id")
+		return ghttp.JSONResponse(c, nil, gers.NewWithMetadata(err, ghttp.Metadata(http.StatusBadRequest, "Bad Request")))
+	}
+
+	err := h.authUsecase.DeleteRole(ctx, authUC.DeleteRoleRequest{
+		ID: id,
+	})
+	if err != nil {
+		return ghttp.JSONResponse(c, nil, err)
+	}
+
+	return ghttp.JSONResponse(c, nil, nil)
+}
+
+func (h *Handler) UpdateResource(c fiber.Ctx) error {
+	span, ctx := tracer.StartSpanFromContext(c.Context(), "AuthHandler/UpdateResource")
+	defer span.Finish(nil)
+
+	var (
+		req model.UpdateResourceRequest
+	)
+	if err := c.Bind().Body(&req); err != nil {
+		return ghttp.JSONResponse(c, nil, gers.NewWithMetadata(err, ghttp.Metadata(http.StatusBadRequest, "Bad Request")))
+	}
+
+	err := h.authUsecase.UpdateResource(ctx, req.ToUsecase(c))
+	if err != nil {
+		return ghttp.JSONResponse(c, nil, err)
+	}
+
+	return ghttp.JSONResponse(c, nil, nil)
+}
+
+func (h *Handler) UpdatePermission(c fiber.Ctx) error {
+	span, ctx := tracer.StartSpanFromContext(c.Context(), "AuthHandler/UpdatePermission")
+	defer span.Finish(nil)
+
+	var (
+		req model.UpdatePermissionRequest
+	)
+	if err := c.Bind().Body(&req); err != nil {
+		return ghttp.JSONResponse(c, nil, gers.NewWithMetadata(err, ghttp.Metadata(http.StatusBadRequest, "Bad Request")))
+	}
+
+	err := h.authUsecase.UpdatePermission(ctx, req.ToUsecase(c))
+	if err != nil {
+		return ghttp.JSONResponse(c, nil, err)
+	}
+
+	return ghttp.JSONResponse(c, nil, nil)
+}
+
+func (h *Handler) UpdateRole(c fiber.Ctx) error {
+	span, ctx := tracer.StartSpanFromContext(c.Context(), "AuthHandler/UpdateRole")
+	defer span.Finish(nil)
+
+	var (
+		req model.UpdateRoleRequest
+	)
+	if err := c.Bind().Body(&req); err != nil {
+		return ghttp.JSONResponse(c, nil, gers.NewWithMetadata(err, ghttp.Metadata(http.StatusBadRequest, "Bad Request")))
+	}
+
+	err := h.authUsecase.UpdateRole(ctx, req.ToUsecase(c))
 	if err != nil {
 		return ghttp.JSONResponse(c, nil, err)
 	}

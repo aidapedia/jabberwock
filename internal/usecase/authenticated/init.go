@@ -22,6 +22,12 @@ type Interface interface {
 	AddResource(ctx context.Context, req AddResourceRequest) (err error)
 	AddPermission(ctx context.Context, req AddPermissionRequest) (err error)
 	AddRole(ctx context.Context, req AddRoleRequest) (err error)
+	UpdateResource(ctx context.Context, req UpdateResourceRequest) (err error)
+	UpdatePermission(ctx context.Context, req UpdatePermissionRequest) (err error)
+	UpdateRole(ctx context.Context, req UpdateRoleRequest) (err error)
+	DeleteResource(ctx context.Context, req DeleteResourceRequest) (err error)
+	DeletePermission(ctx context.Context, req DeletePermissionRequest) (err error)
+	DeleteRole(ctx context.Context, req DeleteRoleRequest) (err error)
 }
 
 type Usecase struct {
