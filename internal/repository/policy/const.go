@@ -28,6 +28,50 @@ const (
 	queryBulkAssignPermission = `
 		INSERT INTO role_permissions (role_id, permission_id)
 	`
+
+	queryBulkDeleteAssignPermission = `
+		DELETE FROM role_permissions
+		WHERE role_id = $1 AND permission_id = $2;
+	`
+
+	queryBulkDeleteAssignResource = `
+		DELETE FROM resource_permissions
+		WHERE resource_id = $1 AND permission_id = $2;
+	`
+
+	queryUpdateRole = `
+		UPDATE roles
+		SET name = $1, description = $2
+		WHERE id = $3;
+	`
+
+	queryUpdatePermission = `
+		UPDATE permissions
+		SET name = $1, description = $2
+		WHERE id = $3;
+	`
+
+	queryUpdateResource = `
+		UPDATE resources
+		SET "type" = $1, method = $2, path = $3
+		WHERE id = $4;
+	`
+
+	queryDeleteRole = `
+		DELETE FROM roles
+		WHERE id = $1;
+	`
+
+	queryDeletePermission = `
+		DELETE FROM permissions
+		WHERE id = $1;
+	`
+
+	queryDeleteResource = `
+		DELETE FROM resources
+		WHERE id = $1;
+	`
+
 	queryGetRoleByUserID = `
 		SELECT r.name, r.description
 		FROM user_roles ur

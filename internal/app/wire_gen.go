@@ -9,6 +9,9 @@ package app
 import (
 	"context"
 	"github.com/aidapedia/jabberwock/internal/app/service"
+	"github.com/aidapedia/jabberwock/internal/driver/casbin"
+	"github.com/aidapedia/jabberwock/internal/driver/database"
+	"github.com/aidapedia/jabberwock/internal/driver/redis"
 	"github.com/aidapedia/jabberwock/internal/interface/http"
 	"github.com/aidapedia/jabberwock/internal/interface/http/handler"
 	"github.com/aidapedia/jabberwock/internal/interface/http/middleware"
@@ -26,12 +29,12 @@ import (
 // Injectors from wire.go:
 
 func InitHTTPServer(ctx context.Context) *service.ServiceHTTP {
-	db := databaseProvider(ctx)
+	db := database.NewDatabase(ctx)
 	policyInterface := policy.New(db)
-	engineInterface := redisProvider(ctx)
+	engineInterface := redis.NewRedis(ctx)
 	sessionInterface := session.New(db, engineInterface)
 	userInterface := user.New(db)
-	enforcer := casbinProvider(ctx)
+	enforcer := casbin.NewCasbin(ctx)
 	authenticatedInterface := authenticated.New(policyInterface, sessionInterface, userInterface, enforcer)
 	userdatacenterInterface := userdatacenter.New(userInterface)
 	handlerHandler := handler.NewHandler(authenticatedInterface, userdatacenterInterface)

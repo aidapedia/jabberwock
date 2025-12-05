@@ -102,7 +102,7 @@ func (r *Repository) CreateResource(ctx context.Context, resource Resource) (err
 	return nil
 }
 
-func (r *Repository) BulkAssignResources(ctx context.Context, permissionID int64, resourceID []int64) (err error) {
+func (r *Repository) BulkAssignResources(ctx context.Context, tx *sql.Tx, permissionID int64, resourceIDs []int64) (err error) {
 	span, ctx := tracer.StartSpanFromContext(ctx, "PolicyRepository/BulkAssignResources")
 	defer span.Finish(err)
 
@@ -111,14 +111,18 @@ func (r *Repository) BulkAssignResources(ctx context.Context, permissionID int64
 
 	var valCount int
 	var values []string
-	for _, resourceID := range resourceID {
+	for _, resourceID := range resourceIDs {
 		values = append(values, fmt.Sprintf("($%d, $%d)", valCount+1, valCount+2))
 		args = append(args, permissionID, resourceID)
 		valCount += 2
 	}
 	query += fmt.Sprintf("VALUES %s;", strings.Join(values, ","))
 
-	_, err = r.database.ExecContext(ctx, query, args...)
+	if tx != nil {
+		_, err = tx.ExecContext(ctx, query, args...)
+	} else {
+		_, err = r.database.ExecContext(ctx, query, args...)
+	}
 	if err != nil {
 		return err
 	}
@@ -138,7 +142,7 @@ func (r *Repository) CreatePermission(ctx context.Context, permission Permission
 	return nil
 }
 
-func (r *Repository) BulkAssignPermissions(ctx context.Context, roleID int64, permissionID []int64) (err error) {
+func (r *Repository) BulkAssignPermissions(ctx context.Context, tx *sql.Tx, roleID int64, permissionIDs []int64) (err error) {
 	span, ctx := tracer.StartSpanFromContext(ctx, "PolicyRepository/BulkAssignPermissions")
 	defer span.Finish(err)
 
@@ -149,13 +153,153 @@ func (r *Repository) BulkAssignPermissions(ctx context.Context, roleID int64, pe
 		valCount int
 		values   []string
 	)
-	for _, permissionID := range permissionID {
+	for _, permissionID := range permissionIDs {
 		values = append(values, fmt.Sprintf("($%d, $%d)", valCount+1, valCount+2))
 		args = append(args, roleID, permissionID)
 		valCount += 2
 	}
 	query += fmt.Sprintf("VALUES %s;", strings.Join(values, ","))
 
+	if tx != nil {
+		_, err = tx.ExecContext(ctx, query, args...)
+	} else {
+		_, err = r.database.ExecContext(ctx, query, args...)
+	}
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *Repository) BulkDeleteAssignPermission(ctx context.Context, tx *sql.Tx, roleID int64, permissionIDs []int64) (err error) {
+	span, ctx := tracer.StartSpanFromContext(ctx, "PolicyRepository/BulkDeleteAssignPermission")
+	defer span.Finish(err)
+
+	query := queryBulkDeleteAssignPermission
+	args := []interface{}{}
+
+	var (
+		valCount int
+		values   []string
+	)
+	for _, permissionID := range permissionIDs {
+		values = append(values, fmt.Sprintf("($%d, $%d)", valCount+1, valCount+2))
+		args = append(args, roleID, permissionID)
+		valCount += 2
+	}
+	query += fmt.Sprintf("VALUES %s;", strings.Join(values, ","))
+
+	if tx != nil {
+		_, err = tx.ExecContext(ctx, query, args...)
+	} else {
+		_, err = r.database.ExecContext(ctx, query, args...)
+	}
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *Repository) UpdatePermission(ctx context.Context, permission Permission) (err error) {
+	span, ctx := tracer.StartSpanFromContext(ctx, "PolicyRepository/UpdatePermission")
+	defer span.Finish(err)
+
+	query := queryUpdatePermission
+	args := []interface{}{permission.Name, permission.Description, permission.ID}
+	_, err = r.database.ExecContext(ctx, query, args...)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *Repository) DeletePermission(ctx context.Context, permissionID int64) (err error) {
+	span, ctx := tracer.StartSpanFromContext(ctx, "PolicyRepository/DeletePermission")
+	defer span.Finish(err)
+
+	query := queryDeletePermission
+	args := []interface{}{permissionID}
+	_, err = r.database.ExecContext(ctx, query, args...)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *Repository) BulkDeleteAssignResource(ctx context.Context, tx *sql.Tx, permissionID int64, resourceIDs []int64) (err error) {
+	span, ctx := tracer.StartSpanFromContext(ctx, "PolicyRepository/BulkDeleteAssignResource")
+	defer span.Finish(err)
+
+	query := queryBulkDeleteAssignResource
+	args := []interface{}{}
+
+	var (
+		valCount int
+		values   []string
+	)
+	for _, resourceID := range resourceIDs {
+		values = append(values, fmt.Sprintf("($%d, $%d)", valCount+1, valCount+2))
+		args = append(args, permissionID, resourceID)
+		valCount += 2
+	}
+	query += fmt.Sprintf("VALUES %s;", strings.Join(values, ","))
+
+	if tx != nil {
+		_, err = tx.ExecContext(ctx, query, args...)
+	} else {
+		_, err = r.database.ExecContext(ctx, query, args...)
+	}
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *Repository) UpdateResource(ctx context.Context, resource Resource) (err error) {
+	span, ctx := tracer.StartSpanFromContext(ctx, "PolicyRepository/UpdateResource")
+	defer span.Finish(err)
+
+	query := queryUpdateResource
+	args := []interface{}{resource.Type, resource.Method, resource.Path, resource.ID}
+	_, err = r.database.ExecContext(ctx, query, args...)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *Repository) DeleteResource(ctx context.Context, resourceID int64) (err error) {
+	span, ctx := tracer.StartSpanFromContext(ctx, "PolicyRepository/DeleteResource")
+	defer span.Finish(err)
+
+	query := queryDeleteResource
+	args := []interface{}{resourceID}
+	_, err = r.database.ExecContext(ctx, query, args...)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *Repository) UpdateRole(ctx context.Context, role Role) (err error) {
+	span, ctx := tracer.StartSpanFromContext(ctx, "PolicyRepository/UpdateRole")
+	defer span.Finish(err)
+
+	query := queryUpdateRole
+	args := []interface{}{role.Name, role.Description, role.ID}
+	_, err = r.database.ExecContext(ctx, query, args...)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *Repository) DeleteRole(ctx context.Context, roleID int64) (err error) {
+	span, ctx := tracer.StartSpanFromContext(ctx, "PolicyRepository/DeleteRole")
+	defer span.Finish(err)
+
+	query := queryDeleteRole
+	args := []interface{}{roleID}
 	_, err = r.database.ExecContext(ctx, query, args...)
 	if err != nil {
 		return err

@@ -131,3 +131,47 @@ func (e *AddRoleRequest) ToUsecase(c fiber.Ctx) authUC.AddRoleRequest {
 		AssignToPermissions: e.AssignToPermissions,
 	}
 }
+
+type UpdateResourceRequest struct {
+	ID     int64  `json:"id" validate:"required"`
+	Type   string `json:"type" validate:"oneof=http grpc"`
+	Method string `json:"method"`
+	Path   string `json:"path" validate:"required"`
+}
+
+func (e *UpdateResourceRequest) ToUsecase(c fiber.Ctx) authUC.UpdateResourceRequest {
+	return authUC.UpdateResourceRequest{
+		ID:     e.ID,
+		Type:   policyRepo.ServiceType(e.Type),
+		Method: e.Method,
+		Path:   e.Path,
+	}
+}
+
+type UpdatePermissionRequest struct {
+	ID          int64  `json:"id" validate:"required"`
+	Name        string `json:"name" validate:"required"`
+	Description string `json:"description" validate:"required"`
+}
+
+func (e *UpdatePermissionRequest) ToUsecase(c fiber.Ctx) authUC.UpdatePermissionRequest {
+	return authUC.UpdatePermissionRequest{
+		ID:          e.ID,
+		Name:        e.Name,
+		Description: e.Description,
+	}
+}
+
+type UpdateRoleRequest struct {
+	ID          int64  `json:"id" validate:"required"`
+	Name        string `json:"name" validate:"required"`
+	Description string `json:"description" validate:"required"`
+}
+
+func (e *UpdateRoleRequest) ToUsecase(c fiber.Ctx) authUC.UpdateRoleRequest {
+	return authUC.UpdateRoleRequest{
+		ID:          e.ID,
+		Name:        e.Name,
+		Description: e.Description,
+	}
+}
