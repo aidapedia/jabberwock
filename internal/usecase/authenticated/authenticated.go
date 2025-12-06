@@ -15,9 +15,10 @@ import (
 	gvalidation "github.com/aidapedia/gdk/validation"
 	cerror "github.com/aidapedia/jabberwock/internal/common/error"
 	policyRepo "github.com/aidapedia/jabberwock/internal/repository/policy"
+	sessionRepo "github.com/aidapedia/jabberwock/internal/repository/session"
 	userRepo "github.com/aidapedia/jabberwock/internal/repository/user"
 
-	sessionRepo "github.com/aidapedia/jabberwock/internal/repository/session"
+	policyUC "github.com/aidapedia/jabberwock/internal/usecase/policy"
 )
 
 // CheckAccessToken checks if the access token is valid
@@ -59,7 +60,7 @@ func (uc *Usecase) CheckAccessToken(ctx context.Context, req CheckAccessTokenPay
 	}
 
 	method, path := ParseElementID(req.ElementID)
-	result, err := uc.enforcer.Enforce(stdPolicy(policyRepo.Policy{
+	result, err := uc.enforcer.Enforce(policyUC.StdPolicy(policyRepo.Policy{
 		Role:   role,
 		Path:   path,
 		Type:   "http",

@@ -16,6 +16,7 @@ import (
 	userRepo "github.com/aidapedia/jabberwock/internal/repository/user"
 
 	authenticatedUsecase "github.com/aidapedia/jabberwock/internal/usecase/authenticated"
+	policyUsecase "github.com/aidapedia/jabberwock/internal/usecase/policy"
 	userdatacenterUsecase "github.com/aidapedia/jabberwock/internal/usecase/userdatacenter"
 
 	"github.com/google/wire"
@@ -37,6 +38,7 @@ var (
 
 	usecaseSet = wire.NewSet(
 		authenticatedUsecase.New,
+		policyUsecase.New,
 		userdatacenterUsecase.New,
 	)
 

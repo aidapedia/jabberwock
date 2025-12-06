@@ -1,8 +1,7 @@
-package authenticated
+package policy
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 
 	gers "github.com/aidapedia/gdk/error"
@@ -25,7 +24,7 @@ func (u *Usecase) LoadPolicy(ctx context.Context, serviceType policyRepo.Service
 	u.enforcer.ClearPolicy()
 
 	for _, policy := range policies {
-		u.enforcer.AddPolicy(stdPolicy(policy)...)
+		u.enforcer.AddPolicy(StdPolicy(policy)...)
 	}
 
 	return nil
@@ -96,17 +95,6 @@ func (u *Usecase) AddRole(ctx context.Context, req AddRoleRequest) (err error) {
 	}
 
 	return nil
-}
-
-// Will Generated Policy Like
-// 1, http:GET, /api/v1/users
-// 1, rpc:OrderService, GetOrder
-func stdPolicy(policy policyRepo.Policy) []interface{} {
-	return []interface{}{
-		policy.Role,
-		fmt.Sprintf("%s:%s", policy.Type, policy.Method),
-		policy.Path,
-	}
 }
 
 func (u *Usecase) UpdateResource(ctx context.Context, req UpdateResourceRequest) (err error) {
