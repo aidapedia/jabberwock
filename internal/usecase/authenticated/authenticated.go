@@ -110,6 +110,11 @@ func (uc *Usecase) Login(ctx context.Context, req LoginRequest) (resp LoginRespo
 		return LoginResponse{}, err
 	}
 
+	permissions, err := uc.policyUsecase.GetUserPermissions(ctx, user.ID)
+	if err != nil {
+		return LoginResponse{}, err
+	}
+
 	roles, err := uc.policyRepo.GetRoleByUserID(ctx, user.ID)
 	if err != nil {
 		return LoginResponse{}, gers.NewWithMetadata(err, ghttp.Metadata(http.StatusInternalServerError, cerror.ErrorMessageTryAgain.Error()))
@@ -145,7 +150,7 @@ func (uc *Usecase) Login(ctx context.Context, req LoginRequest) (resp LoginRespo
 		return LoginResponse{}, gers.NewWithMetadata(err, ghttp.Metadata(http.StatusInternalServerError, cerror.ErrorMessageTryAgain.Error()))
 	}
 
-	resp.Transform(tokenResp, user)
+	resp.Transform(tokenResp, user, permissions.Permissions)
 	return resp, nil
 }
 

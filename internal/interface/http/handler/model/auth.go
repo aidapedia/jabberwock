@@ -14,6 +14,7 @@ type LoginResponse struct {
 		ImageURL string `json:"image_url"`
 		Phone    string `json:"phone"`
 	} `json:"user"`
+	Permissions []string `json:"permissions"`
 }
 
 func (e *LoginResponse) FromUsecase(resp authUC.LoginResponse) {
@@ -23,6 +24,9 @@ func (e *LoginResponse) FromUsecase(resp authUC.LoginResponse) {
 	e.User.Name = resp.User.Name
 	e.User.ImageURL = resp.User.AvatarURL
 	e.User.Phone = resp.User.Phone
+	for _, v := range resp.Permissions {
+		e.Permissions = append(e.Permissions, v.Name)
+	}
 }
 
 type LoginRequest struct {

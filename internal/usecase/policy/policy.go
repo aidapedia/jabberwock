@@ -60,7 +60,7 @@ func (u *Usecase) GetUserPermissions(ctx context.Context, userID int64) (resp Ge
 		}
 	}
 
-	resp.Transform(permissions)
+	resp.Permissions = permissions
 	return resp, nil
 }
 

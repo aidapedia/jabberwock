@@ -1,6 +1,7 @@
 package authenticated
 
 import (
+	policyRepo "github.com/aidapedia/jabberwock/internal/repository/policy"
 	userRepo "github.com/aidapedia/jabberwock/internal/repository/user"
 )
 
@@ -33,13 +34,15 @@ type LoginResponse struct {
 	AccessToken  string
 	RefreshToken string
 	User         userRepo.User
+	Permissions  []policyRepo.Permission
 }
 
-func (e *LoginResponse) Transform(token TokenResponse, user userRepo.User) {
+func (e *LoginResponse) Transform(token TokenResponse, user userRepo.User, permissions []policyRepo.Permission) {
 	e.TokenType = token.Type
 	e.AccessToken = token.AccessToken
 	e.RefreshToken = token.RefreshToken
 	e.User = user
+	e.Permissions = permissions
 }
 
 type LogoutRequest struct {

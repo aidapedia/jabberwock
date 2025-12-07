@@ -54,20 +54,5 @@ type DeleteRoleRequest struct {
 }
 
 type GetUserPermissionsResponse struct {
-	Permissions []GetUserPermissionsResponseItem
-}
-
-func (u *GetUserPermissionsResponse) Transform(permissions []policyRepo.Permission) {
-	u.Permissions = make([]GetUserPermissionsResponseItem, len(permissions))
-	for i, permission := range permissions {
-		u.Permissions[i] = GetUserPermissionsResponseItem{
-			Name:        permission.Name,
-			Description: permission.Description,
-		}
-	}
-}
-
-type GetUserPermissionsResponseItem struct {
-	Name        string
-	Description string
+	Permissions []policyRepo.Permission
 }
