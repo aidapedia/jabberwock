@@ -16,6 +16,10 @@ type CheckAccessTokenPayload struct {
 	ElementID string
 }
 
+type CheckAccessTokenResponse struct {
+	UserID int64
+}
+
 type LoginRequest struct {
 	Identity string
 	Password string

@@ -91,3 +91,14 @@ func (e *UpdateRoleRequest) ToUsecase(c fiber.Ctx) policyUC.UpdateRoleRequest {
 		Description: e.Description,
 	}
 }
+
+type GetUserPermissionsResponse []string
+
+func (e *GetUserPermissionsResponse) FromUsecase(resp policyUC.GetUserPermissionsResponse) {
+	if e == nil {
+		*e = make([]string, len(resp.Permissions))
+	}
+	for _, v := range resp.Permissions {
+		*e = append(*e, v.Name)
+	}
+}

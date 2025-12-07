@@ -30,6 +30,40 @@ func (u *Usecase) LoadPolicy(ctx context.Context, serviceType policyRepo.Service
 	return nil
 }
 
+func (u *Usecase) GetUserPermissions(ctx context.Context, userID int64) (resp GetUserPermissionsResponse, err error) {
+	span, ctx := tracer.StartSpanFromContext(ctx, "AuthenticateUsecase/GetUserPermissions")
+	defer span.Finish(err)
+
+	role, err := u.policyRepo.GetRoleByUserID(ctx, userID)
+	if err != nil {
+		return GetUserPermissionsResponse{}, gers.NewWithMetadata(err,
+			ghttp.Metadata(http.StatusInternalServerError, cerror.ErrorMessageTryAgain.Error()))
+	}
+
+	if role == nil {
+		return GetUserPermissionsResponse{}, gers.NewWithMetadata(err,
+			ghttp.Metadata(http.StatusInternalServerError, cerror.ErrorMessageTryAgain.Error()))
+	}
+
+	var permissions []policyRepo.Permission
+	if len(role) > 0 && role[0].ID == policyRepo.SuperAdminRole {
+		permissions, err = u.policyRepo.GetAllPermissions(ctx)
+		if err != nil {
+			return GetUserPermissionsResponse{}, gers.NewWithMetadata(err,
+				ghttp.Metadata(http.StatusInternalServerError, cerror.ErrorMessageTryAgain.Error()))
+		}
+	} else {
+		permissions, err = u.policyRepo.GetUserPermissions(ctx, userID)
+		if err != nil {
+			return GetUserPermissionsResponse{}, gers.NewWithMetadata(err,
+				ghttp.Metadata(http.StatusInternalServerError, cerror.ErrorMessageTryAgain.Error()))
+		}
+	}
+
+	resp.Transform(permissions)
+	return resp, nil
+}
+
 func (u *Usecase) AddResource(ctx context.Context, req AddResourceRequest) (err error) {
 	span, ctx := tracer.StartSpanFromContext(ctx, "AuthenticateUsecase/AddResource")
 	defer span.Finish(err)

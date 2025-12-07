@@ -19,6 +19,7 @@ type Interface interface {
 	DeleteResource(ctx context.Context, req DeleteResourceRequest) (err error)
 	DeletePermission(ctx context.Context, req DeletePermissionRequest) (err error)
 	DeleteRole(ctx context.Context, req DeleteRoleRequest) (err error)
+	GetUserPermissions(ctx context.Context, userID int64) (resp GetUserPermissionsResponse, err error)
 }
 
 type Usecase struct {

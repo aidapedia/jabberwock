@@ -11,7 +11,7 @@ import (
 
 type Interface interface {
 	// Authentication
-	CheckAccessToken(ctx context.Context, req CheckAccessTokenPayload) error
+	CheckAccessToken(ctx context.Context, req CheckAccessTokenPayload) (resp CheckAccessTokenResponse, err error)
 	Login(ctx context.Context, req LoginRequest) (resp LoginResponse, err error)
 	Logout(ctx context.Context, req LogoutRequest) error
 	Register(ctx context.Context, req RegisterRequest) error

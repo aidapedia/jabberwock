@@ -17,6 +17,8 @@ type Interface interface {
 	UpdatePermission(ctx context.Context, permission Permission) (err error)
 	DeletePermission(ctx context.Context, permissionID int64) (err error)
 	BulkDeleteAssignPermission(ctx context.Context, tx *sql.Tx, roleID int64, permissionIDs []int64) (err error)
+	GetUserPermissions(ctx context.Context, userID int64) (resp []Permission, err error)
+	GetAllPermissions(ctx context.Context) (resp []Permission, err error)
 
 	CreateRole(ctx context.Context, role Role) (err error)
 	AssignRole(ctx context.Context, userID int64, roleID int64) (err error)

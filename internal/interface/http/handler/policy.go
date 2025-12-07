@@ -8,6 +8,7 @@ import (
 	ghttp "github.com/aidapedia/gdk/http"
 	"github.com/aidapedia/gdk/telemetry/tracer"
 	"github.com/aidapedia/gdk/util"
+	"github.com/aidapedia/jabberwock/internal/common/constant"
 	"github.com/aidapedia/jabberwock/internal/interface/http/handler/model"
 	policyUC "github.com/aidapedia/jabberwock/internal/usecase/policy"
 	"github.com/gofiber/fiber/v3"
@@ -185,4 +186,29 @@ func (h *Handler) UpdateRole(c fiber.Ctx) error {
 	}
 
 	return ghttp.JSONResponse(c, nil, nil)
+}
+
+func (h *Handler) GetUserPermissions(c fiber.Ctx) error {
+	span, ctx := tracer.StartSpanFromContext(c.Context(), "AuthHandler/GetUserPermissions")
+	defer span.Finish(nil)
+
+	var (
+		userPermissions model.GetUserPermissionsResponse
+	)
+
+	id := util.ToInt64(c.Locals(constant.ContextKeyUserID))
+	if id == 0 {
+		err := errors.New("invalid id")
+		return ghttp.JSONResponse(c, nil, gers.NewWithMetadata(err, ghttp.Metadata(http.StatusBadRequest, "Bad Request")))
+	}
+
+	resp, err := h.policyUsecase.GetUserPermissions(ctx, id)
+	if err != nil {
+		return ghttp.JSONResponse(c, nil, err)
+	}
+
+	userPermissions.FromUsecase(resp)
+	return ghttp.JSONResponse(c, &ghttp.SuccessResponse{
+		Data: userPermissions,
+	}, nil)
 }

@@ -22,41 +22,41 @@ import (
 )
 
 // CheckAccessToken checks if the access token is valid
-func (uc *Usecase) CheckAccessToken(ctx context.Context, req CheckAccessTokenPayload) (err error) {
+func (uc *Usecase) CheckAccessToken(ctx context.Context, req CheckAccessTokenPayload) (resp CheckAccessTokenResponse, err error) {
 	span, ctx := tracer.StartSpanFromContext(ctx, "AuthenticateUsecase/CheckAccessToken")
 	defer span.Finish(err)
 
 	claims, err := gjwt.VerifyToken(strings.TrimPrefix(string(req.Token), "Bearer "))
 	if err != nil {
-		return gers.NewWithMetadata(err, ghttp.Metadata(http.StatusUnauthorized, "Unauthorized"))
+		return CheckAccessTokenResponse{}, gers.NewWithMetadata(err, ghttp.Metadata(http.StatusUnauthorized, "Unauthorized"))
 	}
 	tokenID, ok := claims["jti"].(string)
 	if !ok {
-		return gers.NewWithMetadata(errors.New("jti is empty"), ghttp.Metadata(http.StatusUnauthorized, "Unauthorized"))
+		return CheckAccessTokenResponse{}, gers.NewWithMetadata(errors.New("jti is empty"), ghttp.Metadata(http.StatusUnauthorized, "Unauthorized"))
 	}
 	role, ok := claims["role"].(string)
 	if !ok {
-		return gers.NewWithMetadata(errors.New("role is empty"), ghttp.Metadata(http.StatusUnauthorized, "Unauthorized"))
+		return CheckAccessTokenResponse{}, gers.NewWithMetadata(errors.New("role is empty"), ghttp.Metadata(http.StatusUnauthorized, "Unauthorized"))
 	}
 
 	session, err := uc.sessionRepo.FindActiveSessionByTokenID(ctx, tokenID)
 	if err != nil {
 		if errors.Is(err, cerror.ErrorNotFound) {
-			return gers.NewWithMetadata(err, ghttp.Metadata(http.StatusForbidden, "Session not found"))
+			return CheckAccessTokenResponse{}, gers.NewWithMetadata(err, ghttp.Metadata(http.StatusForbidden, "Session not found"))
 		}
-		return gers.NewWithMetadata(err, ghttp.Metadata(http.StatusInternalServerError, "Internal Server Error"))
+		return CheckAccessTokenResponse{}, gers.NewWithMetadata(err, ghttp.Metadata(http.StatusInternalServerError, "Internal Server Error"))
 	}
 
 	user, err := uc.userRepo.FindByID(ctx, session.UserID)
 	if err != nil {
 		if errors.Is(err, cerror.ErrorNotFound) {
-			return gers.NewWithMetadata(err, ghttp.Metadata(http.StatusForbidden, "User not found"))
+			return CheckAccessTokenResponse{}, gers.NewWithMetadata(err, ghttp.Metadata(http.StatusForbidden, "User not found"))
 		}
-		return gers.NewWithMetadata(err, ghttp.Metadata(http.StatusInternalServerError, cerror.ErrorMessageTryAgain.Error()))
+		return CheckAccessTokenResponse{}, gers.NewWithMetadata(err, ghttp.Metadata(http.StatusInternalServerError, cerror.ErrorMessageTryAgain.Error()))
 	}
 
 	if err = uc.validateUser(user); err != nil {
-		return err
+		return CheckAccessTokenResponse{}, err
 	}
 
 	method, path := ParseElementID(req.ElementID)
@@ -67,14 +67,16 @@ func (uc *Usecase) CheckAccessToken(ctx context.Context, req CheckAccessTokenPay
 		Method: method,
 	})...)
 	if err != nil {
-		return gers.NewWithMetadata(err, ghttp.Metadata(http.StatusUnauthorized, "Unauthorized"))
+		return CheckAccessTokenResponse{}, gers.NewWithMetadata(err, ghttp.Metadata(http.StatusUnauthorized, "Unauthorized"))
 	}
 
 	if !result {
-		return gers.NewWithMetadata(fmt.Errorf("user %d is not authorized to access %s", user.ID, req.ElementID), ghttp.Metadata(http.StatusUnauthorized, "Unauthorized"))
+		return CheckAccessTokenResponse{}, gers.NewWithMetadata(fmt.Errorf("user %d is not authorized to access %s", user.ID, req.ElementID), ghttp.Metadata(http.StatusUnauthorized, "Unauthorized"))
 	}
 
-	return nil
+	return CheckAccessTokenResponse{
+		UserID: user.ID,
+	}, nil
 }
 
 // Login do login for user get sessions

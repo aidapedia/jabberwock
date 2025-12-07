@@ -73,7 +73,7 @@ const (
 	`
 
 	queryGetRoleByUserID = `
-		SELECT r.name, r.description
+		SELECT r.id, r.name, r.description
 		FROM user_roles ur
 		LEFT JOIN roles r ON ur.role_id = r.id
 		WHERE ur.user_id = $1;
@@ -90,4 +90,17 @@ const (
         JOIN resources_permissions resp ON resp.permission_id = rp.permission_id
         JOIN resources res ON res.id = resp.resource_id WHERE res.type = $1;
     `
+
+	queryGetUserPermissions = `
+		SELECT DISTINCT(p.id), p.name, p.description, p.created_at, p.updated_at
+		FROM user_roles ur
+		LEFT JOIN role_permissions rp ON ur.role_id = rp.role_id
+		LEFT JOIN permissions p ON rp.permission_id = p.id
+		WHERE ur.user_id = $1;
+	`
+
+	queryGetAllPermissions = `
+		SELECT id, name, description, created_at, updated_at
+		FROM permissions;
+	`
 )
