@@ -1,8 +1,7 @@
-package authenticated
+package policy
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 
 	gers "github.com/aidapedia/gdk/error"
@@ -25,10 +24,44 @@ func (u *Usecase) LoadPolicy(ctx context.Context, serviceType policyRepo.Service
 	u.enforcer.ClearPolicy()
 
 	for _, policy := range policies {
-		u.enforcer.AddPolicy(stdPolicy(policy)...)
+		u.enforcer.AddPolicy(StdPolicy(policy)...)
 	}
 
 	return nil
+}
+
+func (u *Usecase) GetUserPermissions(ctx context.Context, userID int64) (resp GetUserPermissionsResponse, err error) {
+	span, ctx := tracer.StartSpanFromContext(ctx, "AuthenticateUsecase/GetUserPermissions")
+	defer span.Finish(err)
+
+	role, err := u.policyRepo.GetRoleByUserID(ctx, userID)
+	if err != nil {
+		return GetUserPermissionsResponse{}, gers.NewWithMetadata(err,
+			ghttp.Metadata(http.StatusInternalServerError, cerror.ErrorMessageTryAgain.Error()))
+	}
+
+	if role == nil {
+		return GetUserPermissionsResponse{}, gers.NewWithMetadata(err,
+			ghttp.Metadata(http.StatusInternalServerError, cerror.ErrorMessageTryAgain.Error()))
+	}
+
+	var permissions []policyRepo.Permission
+	if len(role) > 0 && role[0].ID == policyRepo.SuperAdminRole {
+		permissions, err = u.policyRepo.GetAllPermissions(ctx)
+		if err != nil {
+			return GetUserPermissionsResponse{}, gers.NewWithMetadata(err,
+				ghttp.Metadata(http.StatusInternalServerError, cerror.ErrorMessageTryAgain.Error()))
+		}
+	} else {
+		permissions, err = u.policyRepo.GetUserPermissions(ctx, userID)
+		if err != nil {
+			return GetUserPermissionsResponse{}, gers.NewWithMetadata(err,
+				ghttp.Metadata(http.StatusInternalServerError, cerror.ErrorMessageTryAgain.Error()))
+		}
+	}
+
+	resp.Permissions = permissions
+	return resp, nil
 }
 
 func (u *Usecase) AddResource(ctx context.Context, req AddResourceRequest) (err error) {
@@ -96,17 +129,6 @@ func (u *Usecase) AddRole(ctx context.Context, req AddRoleRequest) (err error) {
 	}
 
 	return nil
-}
-
-// Will Generated Policy Like
-// 1, http:GET, /api/v1/users
-// 1, rpc:OrderService, GetOrder
-func stdPolicy(policy policyRepo.Policy) []interface{} {
-	return []interface{}{
-		policy.Role,
-		fmt.Sprintf("%s:%s", policy.Type, policy.Method),
-		policy.Path,
-	}
 }
 
 func (u *Usecase) UpdateResource(ctx context.Context, req UpdateResourceRequest) (err error) {

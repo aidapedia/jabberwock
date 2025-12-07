@@ -27,5 +27,7 @@ func Register(app *fiber.App, handler *handler.Handler, middleware *middleware.M
 		Delete("/resource/:id", handler.DeleteResource).
 		Delete("/permission/:id", handler.DeletePermission).
 		Delete("/role/:id", handler.DeleteRole)
-	protected.Get("/user/:id", handler.GetUserByID)
+	protected.Group("/user").
+		Get("/permissions", handler.GetUserPermissions).
+		Get("/:id", handler.GetUserByID)
 }

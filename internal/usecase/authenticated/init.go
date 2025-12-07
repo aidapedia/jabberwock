@@ -6,28 +6,18 @@ import (
 	policyRepo "github.com/aidapedia/jabberwock/internal/repository/policy"
 	sessionRepo "github.com/aidapedia/jabberwock/internal/repository/session"
 	userRepo "github.com/aidapedia/jabberwock/internal/repository/user"
+
+	policyUC "github.com/aidapedia/jabberwock/internal/usecase/policy"
 	"github.com/casbin/casbin/v2"
 )
 
 type Interface interface {
 	// Authentication
-	CheckAccessToken(ctx context.Context, req CheckAccessTokenPayload) error
+	CheckAccessToken(ctx context.Context, req CheckAccessTokenPayload) (resp CheckAccessTokenResponse, err error)
 	Login(ctx context.Context, req LoginRequest) (resp LoginResponse, err error)
 	Logout(ctx context.Context, req LogoutRequest) error
 	Register(ctx context.Context, req RegisterRequest) error
 	RefreshToken(ctx context.Context, req RefreshTokenRequest) (resp RefreshTokenResponse, err error)
-
-	// Policy Management
-	LoadPolicy(ctx context.Context, serviceType policyRepo.ServiceType) (err error)
-	AddResource(ctx context.Context, req AddResourceRequest) (err error)
-	AddPermission(ctx context.Context, req AddPermissionRequest) (err error)
-	AddRole(ctx context.Context, req AddRoleRequest) (err error)
-	UpdateResource(ctx context.Context, req UpdateResourceRequest) (err error)
-	UpdatePermission(ctx context.Context, req UpdatePermissionRequest) (err error)
-	UpdateRole(ctx context.Context, req UpdateRoleRequest) (err error)
-	DeleteResource(ctx context.Context, req DeleteResourceRequest) (err error)
-	DeletePermission(ctx context.Context, req DeletePermissionRequest) (err error)
-	DeleteRole(ctx context.Context, req DeleteRoleRequest) (err error)
 }
 
 type Usecase struct {
@@ -35,14 +25,17 @@ type Usecase struct {
 	userRepo    userRepo.Interface
 	policyRepo  policyRepo.Interface
 
+	policyUsecase policyUC.Interface
+
 	enforcer *casbin.Enforcer
 }
 
-func New(policyRepo policyRepo.Interface, sessionRepo sessionRepo.Interface, userRepo userRepo.Interface, enforcer *casbin.Enforcer) Interface {
+func New(policyRepo policyRepo.Interface, policyUsecase policyUC.Interface, sessionRepo sessionRepo.Interface, userRepo userRepo.Interface, enforcer *casbin.Enforcer) Interface {
 	return &Usecase{
-		sessionRepo: sessionRepo,
-		userRepo:    userRepo,
-		enforcer:    enforcer,
-		policyRepo:  policyRepo,
+		sessionRepo:   sessionRepo,
+		userRepo:      userRepo,
+		enforcer:      enforcer,
+		policyRepo:    policyRepo,
+		policyUsecase: policyUsecase,
 	}
 }

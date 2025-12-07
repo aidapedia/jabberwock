@@ -52,7 +52,7 @@ func (r *Repository) GetRoleByUserID(ctx context.Context, userID int64) (resp Ge
 
 	for rows.Next() {
 		var role Role
-		err = rows.Scan(&role.Name, &role.Description)
+		err = rows.Scan(&role.ID, &role.Name, &role.Description)
 		if err != nil {
 			return []Role{}, err
 		}
@@ -305,4 +305,49 @@ func (r *Repository) DeleteRole(ctx context.Context, roleID int64) (err error) {
 		return err
 	}
 	return nil
+}
+
+func (r *Repository) GetUserPermissions(ctx context.Context, userID int64) (resp []Permission, err error) {
+	span, ctx := tracer.StartSpanFromContext(ctx, "PolicyRepository/GetUserPermissions")
+	defer span.Finish(err)
+
+	query := queryGetUserPermissions
+	args := []interface{}{userID}
+	rows, err := r.database.QueryContext(ctx, query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var permission Permission
+		err = rows.Scan(&permission.ID, &permission.Name, &permission.Description, &permission.CreatedAt, &permission.UpdatedAt)
+		if err != nil {
+			return nil, err
+		}
+		resp = append(resp, permission)
+	}
+	return resp, nil
+}
+
+func (r *Repository) GetAllPermissions(ctx context.Context) (resp []Permission, err error) {
+	span, ctx := tracer.StartSpanFromContext(ctx, "PolicyRepository/GetAllPermissions")
+	defer span.Finish(err)
+
+	query := queryGetAllPermissions
+	rows, err := r.database.QueryContext(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var permission Permission
+		err = rows.Scan(&permission.ID, &permission.Name, &permission.Description, &permission.CreatedAt, &permission.UpdatedAt)
+		if err != nil {
+			return nil, err
+		}
+		resp = append(resp, permission)
+	}
+	return resp, nil
 }

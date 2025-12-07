@@ -19,6 +19,7 @@ import (
 	"github.com/aidapedia/jabberwock/internal/repository/session"
 	"github.com/aidapedia/jabberwock/internal/repository/user"
 	"github.com/aidapedia/jabberwock/internal/usecase/authenticated"
+	policy2 "github.com/aidapedia/jabberwock/internal/usecase/policy"
 	"github.com/aidapedia/jabberwock/internal/usecase/userdatacenter"
 )
 
@@ -31,15 +32,16 @@ import (
 func InitHTTPServer(ctx context.Context) *service.ServiceHTTP {
 	db := database.NewDatabase(ctx)
 	policyInterface := policy.New(db)
+	enforcer := casbin.NewCasbin(ctx)
+	interface2 := policy2.New(policyInterface, enforcer)
 	engineInterface := redis.NewRedis(ctx)
 	sessionInterface := session.New(db, engineInterface)
 	userInterface := user.New(db)
-	enforcer := casbin.NewCasbin(ctx)
-	authenticatedInterface := authenticated.New(policyInterface, sessionInterface, userInterface, enforcer)
+	authenticatedInterface := authenticated.New(policyInterface, interface2, sessionInterface, userInterface, enforcer)
 	userdatacenterInterface := userdatacenter.New(userInterface)
-	handlerHandler := handler.NewHandler(authenticatedInterface, userdatacenterInterface)
+	handlerHandler := handler.NewHandler(authenticatedInterface, interface2, userdatacenterInterface)
 	middlewareMiddleware := middleware.NewMiddleware(authenticatedInterface)
 	httpServiceInterface := http.NewHTTPService(handlerHandler, middlewareMiddleware)
-	serviceHTTP := service.NewServiceHTTP(httpServiceInterface, authenticatedInterface)
+	serviceHTTP := service.NewServiceHTTP(httpServiceInterface, interface2)
 	return serviceHTTP
 }

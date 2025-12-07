@@ -17,6 +17,10 @@ type CheckAccessTokenPayload struct {
 	ElementID string
 }
 
+type CheckAccessTokenResponse struct {
+	UserID int64
+}
+
 type LoginRequest struct {
 	Identity string
 	Password string
@@ -30,13 +34,15 @@ type LoginResponse struct {
 	AccessToken  string
 	RefreshToken string
 	User         userRepo.User
+	Permissions  []policyRepo.Permission
 }
 
-func (e *LoginResponse) Transform(token TokenResponse, user userRepo.User) {
+func (e *LoginResponse) Transform(token TokenResponse, user userRepo.User, permissions []policyRepo.Permission) {
 	e.TokenType = token.Type
 	e.AccessToken = token.AccessToken
 	e.RefreshToken = token.RefreshToken
 	e.User = user
+	e.Permissions = permissions
 }
 
 type LogoutRequest struct {
@@ -61,53 +67,4 @@ type RefreshTokenResponse struct {
 	TokenType    string
 	AccessToken  string
 	RefreshToken string
-}
-
-type AddResourceRequest struct {
-	Type   policyRepo.ServiceType
-	Method string
-	Path   string
-}
-
-type AddPermissionRequest struct {
-	Name              string
-	Description       string
-	AssignToResources []int64
-}
-
-type AddRoleRequest struct {
-	Name                string
-	Description         string
-	AssignToPermissions []int64
-}
-
-type UpdateResourceRequest struct {
-	ID     int64
-	Type   policyRepo.ServiceType
-	Method string
-	Path   string
-}
-
-type UpdatePermissionRequest struct {
-	ID          int64
-	Name        string
-	Description string
-}
-
-type UpdateRoleRequest struct {
-	ID          int64
-	Name        string
-	Description string
-}
-
-type DeleteResourceRequest struct {
-	ID int64
-}
-
-type DeletePermissionRequest struct {
-	ID int64
-}
-
-type DeleteRoleRequest struct {
-	ID int64
 }

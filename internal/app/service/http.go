@@ -5,23 +5,23 @@ import (
 
 	"github.com/aidapedia/jabberwock/internal/interface/http"
 	policyRepo "github.com/aidapedia/jabberwock/internal/repository/policy"
-	authenticatedUC "github.com/aidapedia/jabberwock/internal/usecase/authenticated"
+	policyUC "github.com/aidapedia/jabberwock/internal/usecase/policy"
 )
 
 type ServiceHTTP struct {
-	authenticatedUC authenticatedUC.Interface
-	httpService     http.HTTPServiceInterface
+	policyUC    policyUC.Interface
+	httpService http.HTTPServiceInterface
 }
 
-func NewServiceHTTP(httpService http.HTTPServiceInterface, authenticatedUC authenticatedUC.Interface) *ServiceHTTP {
+func NewServiceHTTP(httpService http.HTTPServiceInterface, policyUC policyUC.Interface) *ServiceHTTP {
 	return &ServiceHTTP{
-		authenticatedUC: authenticatedUC,
-		httpService:     httpService,
+		policyUC:    policyUC,
+		httpService: httpService,
 	}
 }
 
 func (s *ServiceHTTP) LoadPolicy(ctx context.Context) error {
-	err := s.authenticatedUC.LoadPolicy(ctx, policyRepo.HTTPServiceType)
+	err := s.policyUC.LoadPolicy(ctx, policyRepo.HTTPServiceType)
 	if err != nil {
 		return err
 	}
