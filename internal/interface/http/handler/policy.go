@@ -10,139 +10,177 @@ import (
 	"github.com/aidapedia/gdk/util"
 	"github.com/aidapedia/jabberwock/internal/common/constant"
 	"github.com/aidapedia/jabberwock/internal/interface/http/handler/model"
-	policyUC "github.com/aidapedia/jabberwock/internal/usecase/policy"
 	"github.com/gofiber/fiber/v3"
 )
 
-func (h *Handler) AddResource(c fiber.Ctx) error {
+func (h *Handler) AddResource(c fiber.Ctx) (err error) {
 	span, ctx := tracer.StartSpanFromContext(c.Context(), "AuthHandler/AddResource")
-	defer span.Finish(nil)
+	defer span.Finish(err)
 
 	var (
-		req model.AddResourceRequest
+		response *ghttp.SuccessResponse
+		req      model.AddResourceRequest
 	)
-	if err := c.Bind().Body(&req); err != nil {
-		return ghttp.JSONResponse(c, nil, gers.NewWithMetadata(err, ghttp.Metadata(http.StatusBadRequest, "Bad Request")))
-	}
+	defer func() {
+		err = ghttp.JSONResponse(c, response, err)
+	}()
 
-	err := h.policyUsecase.AddResource(ctx, req.ToUsecase(c))
+	ucReq, err := req.BindAndValidate(c)
 	if err != nil {
-		return ghttp.JSONResponse(c, nil, err)
+		return
 	}
 
-	return ghttp.JSONResponse(c, nil, nil)
+	err = h.policyUsecase.AddResource(ctx, ucReq)
+	if err != nil {
+		return
+	}
+
+	return
 }
 
-func (h *Handler) AddPermission(c fiber.Ctx) error {
+func (h *Handler) AddPermission(c fiber.Ctx) (err error) {
 	span, ctx := tracer.StartSpanFromContext(c.Context(), "AuthHandler/AddPermission")
-	defer span.Finish(nil)
+	defer span.Finish(err)
 
 	var (
-		req model.AddPermissionRequest
+		response *ghttp.SuccessResponse
+		req      model.AddPermissionRequest
 	)
-	if err := c.Bind().Body(&req); err != nil {
-		return ghttp.JSONResponse(c, nil, gers.NewWithMetadata(err, ghttp.Metadata(http.StatusBadRequest, "Bad Request")))
-	}
+	defer func() {
+		err = ghttp.JSONResponse(c, response, err)
+	}()
 
-	err := h.policyUsecase.AddPermission(ctx, req.ToUsecase(c))
+	ucReq, err := req.BindAndValidate(c)
 	if err != nil {
-		return ghttp.JSONResponse(c, nil, err)
+		return
 	}
 
-	return ghttp.JSONResponse(c, nil, nil)
+	err = h.policyUsecase.AddPermission(ctx, ucReq)
+	if err != nil {
+		return
+	}
+
+	return
 }
 
-func (h *Handler) AddRole(c fiber.Ctx) error {
+func (h *Handler) AddRole(c fiber.Ctx) (err error) {
 	span, ctx := tracer.StartSpanFromContext(c.Context(), "AuthHandler/AddRole")
-	defer span.Finish(nil)
+	defer span.Finish(err)
 
 	var (
-		req model.AddRoleRequest
+		response *ghttp.SuccessResponse
+		req      model.AddRoleRequest
 	)
-	if err := c.Bind().Body(&req); err != nil {
-		return ghttp.JSONResponse(c, nil, gers.NewWithMetadata(err, ghttp.Metadata(http.StatusBadRequest, "Bad Request")))
-	}
+	defer func() {
+		err = ghttp.JSONResponse(c, response, err)
+	}()
 
-	err := h.policyUsecase.AddRole(ctx, req.ToUsecase(c))
+	ucReq, err := req.BindAndValidate(c)
 	if err != nil {
-		return ghttp.JSONResponse(c, nil, err)
+		return
 	}
 
-	return ghttp.JSONResponse(c, nil, nil)
+	err = h.policyUsecase.AddRole(ctx, ucReq)
+	if err != nil {
+		return
+	}
+
+	return
 }
 
-func (h *Handler) DeleteResource(c fiber.Ctx) error {
+func (h *Handler) DeleteResource(c fiber.Ctx) (err error) {
 	span, ctx := tracer.StartSpanFromContext(c.Context(), "AuthHandler/DeleteResource")
-	defer span.Finish(nil)
+	defer span.Finish(err)
 
-	id := util.ToInt64(c.Params("id"))
-	if id == 0 {
-		err := errors.New("invalid id")
-		return ghttp.JSONResponse(c, nil, gers.NewWithMetadata(err, ghttp.Metadata(http.StatusBadRequest, "Bad Request")))
-	}
+	var (
+		response *ghttp.SuccessResponse
+		req      model.DeleteResourceRequest
+	)
+	defer func() {
+		err = ghttp.JSONResponse(c, response, err)
+	}()
 
-	err := h.policyUsecase.DeleteResource(ctx, policyUC.DeleteResourceRequest{
-		ID: id,
-	})
+	ucReq, err := req.BindAndValidate(c)
 	if err != nil {
-		return ghttp.JSONResponse(c, nil, err)
+		return
 	}
 
-	return ghttp.JSONResponse(c, nil, nil)
+	err = h.policyUsecase.DeleteResource(ctx, ucReq)
+	if err != nil {
+		return
+	}
+
+	return
 }
 
-func (h *Handler) DeletePermission(c fiber.Ctx) error {
+func (h *Handler) DeletePermission(c fiber.Ctx) (err error) {
 	span, ctx := tracer.StartSpanFromContext(c.Context(), "AuthHandler/DeletePermission")
-	defer span.Finish(nil)
+	defer span.Finish(err)
 
-	id := util.ToInt64(c.Params("id"))
-	if id == 0 {
-		err := errors.New("invalid id")
-		return ghttp.JSONResponse(c, nil, gers.NewWithMetadata(err, ghttp.Metadata(http.StatusBadRequest, "Bad Request")))
-	}
+	var (
+		response *ghttp.SuccessResponse
+		req      model.DeletePermissionRequest
+	)
+	defer func() {
+		err = ghttp.JSONResponse(c, response, err)
+	}()
 
-	err := h.policyUsecase.DeletePermission(ctx, policyUC.DeletePermissionRequest{
-		ID: id,
-	})
+	ucReq, err := req.BindAndValidate(c)
 	if err != nil {
-		return ghttp.JSONResponse(c, nil, err)
+		return
 	}
 
-	return ghttp.JSONResponse(c, nil, nil)
+	err = h.policyUsecase.DeletePermission(ctx, ucReq)
+	if err != nil {
+		return
+	}
+
+	return
 }
 
-func (h *Handler) DeleteRole(c fiber.Ctx) error {
+func (h *Handler) DeleteRole(c fiber.Ctx) (err error) {
 	span, ctx := tracer.StartSpanFromContext(c.Context(), "AuthHandler/DeleteRole")
-	defer span.Finish(nil)
+	defer span.Finish(err)
 
-	id := util.ToInt64(c.Params("id"))
-	if id == 0 {
-		err := errors.New("invalid id")
-		return ghttp.JSONResponse(c, nil, gers.NewWithMetadata(err, ghttp.Metadata(http.StatusBadRequest, "Bad Request")))
-	}
+	var (
+		response *ghttp.SuccessResponse
+		req      model.DeleteRoleRequest
+	)
+	defer func() {
+		err = ghttp.JSONResponse(c, response, err)
+	}()
 
-	err := h.policyUsecase.DeleteRole(ctx, policyUC.DeleteRoleRequest{
-		ID: id,
-	})
+	ucReq, err := req.BindAndValidate(c)
 	if err != nil {
-		return ghttp.JSONResponse(c, nil, err)
+		return
 	}
 
-	return ghttp.JSONResponse(c, nil, nil)
+	err = h.policyUsecase.DeleteRole(ctx, ucReq)
+	if err != nil {
+		return
+	}
+
+	return
 }
 
-func (h *Handler) UpdateResource(c fiber.Ctx) error {
+func (h *Handler) UpdateResource(c fiber.Ctx) (err error) {
 	span, ctx := tracer.StartSpanFromContext(c.Context(), "AuthHandler/UpdateResource")
-	defer span.Finish(nil)
+	defer span.Finish(err)
 
 	var (
-		req model.UpdateResourceRequest
+		response *ghttp.SuccessResponse
+		req      model.UpdateResourceRequest
 	)
-	if err := c.Bind().Body(&req); err != nil {
-		return ghttp.JSONResponse(c, nil, gers.NewWithMetadata(err, ghttp.Metadata(http.StatusBadRequest, "Bad Request")))
+	defer func() {
+		err = ghttp.JSONResponse(c, response, err)
+	}()
+
+	ucReq, err := req.BindAndValidate(c)
+	if err != nil {
+		return
 	}
 
-	err := h.policyUsecase.UpdateResource(ctx, req.ToUsecase(c))
+	err = h.policyUsecase.UpdateResource(ctx, ucReq)
 	if err != nil {
 		return ghttp.JSONResponse(c, nil, err)
 	}
@@ -150,51 +188,67 @@ func (h *Handler) UpdateResource(c fiber.Ctx) error {
 	return ghttp.JSONResponse(c, nil, nil)
 }
 
-func (h *Handler) UpdatePermission(c fiber.Ctx) error {
+func (h *Handler) UpdatePermission(c fiber.Ctx) (err error) {
 	span, ctx := tracer.StartSpanFromContext(c.Context(), "AuthHandler/UpdatePermission")
-	defer span.Finish(nil)
+	defer span.Finish(err)
 
 	var (
-		req model.UpdatePermissionRequest
+		response *ghttp.SuccessResponse
+		req      model.UpdatePermissionRequest
 	)
-	if err := c.Bind().Body(&req); err != nil {
-		return ghttp.JSONResponse(c, nil, gers.NewWithMetadata(err, ghttp.Metadata(http.StatusBadRequest, "Bad Request")))
-	}
+	defer func() {
+		err = ghttp.JSONResponse(c, response, err)
+	}()
 
-	err := h.policyUsecase.UpdatePermission(ctx, req.ToUsecase(c))
+	ucReq, err := req.BindAndValidate(c)
 	if err != nil {
-		return ghttp.JSONResponse(c, nil, err)
+		return
 	}
 
-	return ghttp.JSONResponse(c, nil, nil)
+	err = h.policyUsecase.UpdatePermission(ctx, ucReq)
+	if err != nil {
+		return
+	}
+
+	return
 }
 
-func (h *Handler) UpdateRole(c fiber.Ctx) error {
+func (h *Handler) UpdateRole(c fiber.Ctx) (err error) {
 	span, ctx := tracer.StartSpanFromContext(c.Context(), "AuthHandler/UpdateRole")
-	defer span.Finish(nil)
+	defer span.Finish(err)
 
 	var (
-		req model.UpdateRoleRequest
+		response *ghttp.SuccessResponse
+		req      model.UpdateRoleRequest
 	)
-	if err := c.Bind().Body(&req); err != nil {
-		return ghttp.JSONResponse(c, nil, gers.NewWithMetadata(err, ghttp.Metadata(http.StatusBadRequest, "Bad Request")))
-	}
+	defer func() {
+		err = ghttp.JSONResponse(c, response, err)
+	}()
 
-	err := h.policyUsecase.UpdateRole(ctx, req.ToUsecase(c))
+	ucReq, err := req.BindAndValidate(c)
 	if err != nil {
-		return ghttp.JSONResponse(c, nil, err)
+		return
 	}
 
-	return ghttp.JSONResponse(c, nil, nil)
+	err = h.policyUsecase.UpdateRole(ctx, ucReq)
+	if err != nil {
+		return
+	}
+
+	return
 }
 
-func (h *Handler) GetUserPermissions(c fiber.Ctx) error {
+func (h *Handler) GetUserPermissions(c fiber.Ctx) (err error) {
 	span, ctx := tracer.StartSpanFromContext(c.Context(), "AuthHandler/GetUserPermissions")
-	defer span.Finish(nil)
+	defer span.Finish(err)
 
 	var (
+		response        *ghttp.SuccessResponse
 		userPermissions model.GetUserPermissionsResponse
 	)
+	defer func() {
+		err = ghttp.JSONResponse(c, response, err)
+	}()
 
 	id := util.ToInt64(c.Locals(constant.ContextKeyUserID))
 	if id == 0 {
@@ -204,11 +258,9 @@ func (h *Handler) GetUserPermissions(c fiber.Ctx) error {
 
 	resp, err := h.policyUsecase.GetUserPermissions(ctx, id)
 	if err != nil {
-		return ghttp.JSONResponse(c, nil, err)
+		return
 	}
 
-	userPermissions.FromUsecase(resp)
-	return ghttp.JSONResponse(c, &ghttp.SuccessResponse{
-		Data: userPermissions,
-	}, nil)
+	response = userPermissions.ToSuccessResponse(resp)
+	return
 }
