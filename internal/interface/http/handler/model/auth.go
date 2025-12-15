@@ -1,6 +1,10 @@
 package model
 
 import (
+	"net/http"
+
+	gers "github.com/aidapedia/gdk/error"
+	ghttp "github.com/aidapedia/gdk/http"
 	authUC "github.com/aidapedia/jabberwock/internal/usecase/authenticated"
 	"github.com/gofiber/fiber/v3"
 )
@@ -17,7 +21,7 @@ type LoginResponse struct {
 	Permissions []string `json:"permissions"`
 }
 
-func (e *LoginResponse) FromUsecase(resp authUC.LoginResponse) {
+func (e *LoginResponse) ToSuccessResponse(resp authUC.LoginResponse) *ghttp.SuccessResponse {
 	e.AccessToken = resp.AccessToken
 	e.RefreshToken = resp.RefreshToken
 	e.User.ID = resp.User.ID
@@ -27,6 +31,9 @@ func (e *LoginResponse) FromUsecase(resp authUC.LoginResponse) {
 	for _, v := range resp.Permissions {
 		e.Permissions = append(e.Permissions, v.Name)
 	}
+	return &ghttp.SuccessResponse{
+		Data: e,
+	}
 }
 
 type LoginRequest struct {
@@ -34,13 +41,15 @@ type LoginRequest struct {
 	Password string `json:"password"`
 }
 
-func (e *LoginRequest) ToUsecase(c fiber.Ctx) authUC.LoginRequest {
-	return authUC.LoginRequest{
-		Identity:  e.Identity,
-		Password:  e.Password,
-		IP:        c.IP(),
-		UserAgent: c.Get(fiber.HeaderUserAgent),
+func (e *LoginRequest) BindAndValidate(c fiber.Ctx) (ucReq authUC.LoginRequest, err error) {
+	if err := c.Bind().Body(e); err != nil {
+		return ucReq, ghttp.JSONResponse(c, nil, gers.NewWithMetadata(err, ghttp.Metadata(http.StatusBadRequest, "Bad Request")))
 	}
+	ucReq.Identity = e.Identity
+	ucReq.Password = e.Password
+	ucReq.IP = c.IP()
+	ucReq.UserAgent = c.Get(fiber.HeaderUserAgent)
+	return ucReq, nil
 }
 
 type RefreshTokenResponse struct {
@@ -49,32 +58,36 @@ type RefreshTokenResponse struct {
 	RefreshToken string `json:"refresh_token"`
 }
 
-func (e *RefreshTokenResponse) FromUsecase(resp authUC.RefreshTokenResponse) {
+func (e *RefreshTokenResponse) ToSuccessResponse(resp authUC.RefreshTokenResponse) *ghttp.SuccessResponse {
 	e.TokenType = resp.TokenType
 	e.AccessToken = resp.AccessToken
 	e.RefreshToken = resp.RefreshToken
+	return &ghttp.SuccessResponse{
+		Data: e,
+	}
 }
 
 type RefreshTokenRequest struct {
 	RefreshToken string `json:"refresh_token"`
 }
 
-func (e *RefreshTokenRequest) ToUsecase(c fiber.Ctx) authUC.RefreshTokenRequest {
-	return authUC.RefreshTokenRequest{
-		RefreshToken: c.Get(fiber.HeaderAuthorization),
-		IP:           c.IP(),
-		UserAgent:    c.Get(fiber.HeaderUserAgent),
+func (e *RefreshTokenRequest) BindAndValidate(c fiber.Ctx) (ucReq authUC.RefreshTokenRequest, err error) {
+	if err := c.Bind().Body(e); err != nil {
+		return ucReq, ghttp.JSONResponse(c, nil, gers.NewWithMetadata(err, ghttp.Metadata(http.StatusBadRequest, "Bad Request")))
 	}
+	ucReq.RefreshToken = e.RefreshToken
+	ucReq.IP = c.IP()
+	ucReq.UserAgent = c.Get(fiber.HeaderUserAgent)
+	return ucReq, nil
 }
 
 type LogoutRequest struct {
 	Token string `json:"token"`
 }
 
-func (e *LogoutRequest) ToUsecase(c fiber.Ctx) authUC.LogoutRequest {
-	return authUC.LogoutRequest{
-		Token: c.Get(fiber.HeaderAuthorization),
-	}
+func (e *LogoutRequest) BindAndValidate(c fiber.Ctx) (ucReq authUC.LogoutRequest, err error) {
+	ucReq.Token = c.Get(fiber.HeaderAuthorization)
+	return ucReq, nil
 }
 
 type RegisterRequest struct {
@@ -84,11 +97,13 @@ type RegisterRequest struct {
 	Password string `json:"password"`
 }
 
-func (e *RegisterRequest) ToUsecase(c fiber.Ctx) authUC.RegisterRequest {
-	return authUC.RegisterRequest{
-		Name:     e.Name,
-		Phone:    e.Phone,
-		Email:    e.Email,
-		Password: e.Password,
+func (e *RegisterRequest) BindAndValidate(c fiber.Ctx) (ucReq authUC.RegisterRequest, err error) {
+	if err := c.Bind().Body(e); err != nil {
+		return ucReq, ghttp.JSONResponse(c, nil, gers.NewWithMetadata(err, ghttp.Metadata(http.StatusBadRequest, "Bad Request")))
 	}
+	ucReq.Name = e.Name
+	ucReq.Phone = e.Phone
+	ucReq.Email = e.Email
+	ucReq.Password = e.Password
+	return ucReq, nil
 }

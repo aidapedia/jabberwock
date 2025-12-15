@@ -23,13 +23,10 @@ func (u User) IsEmpty() bool {
 type Verified uint64
 
 // Binary representation of verification status
-// VerifiedNone  = 0000
-// VerifiedPhone = 0001
-// VerifiedEmail = 0010
 const (
-	VerifiedNone  Verified = 0
-	VerifiedPhone Verified = 1
-	VerifiedEmail Verified = 2
+	VerifiedNone  Verified = 0 // 0000
+	VerifiedPhone Verified = 1 // 0001
+	VerifiedEmail Verified = 2 // 0010
 )
 
 type Status int8
@@ -38,21 +35,3 @@ const (
 	StatusActive Status = iota
 	StatusBlocked
 )
-
-type Type int8
-
-const (
-	TypeAdmin Type = iota
-	TypeUser
-)
-
-func (t Type) String() string {
-	switch t {
-	case TypeAdmin:
-		return "admin"
-	case TypeUser:
-		return "user"
-	default:
-		return "unknown"
-	}
-}
