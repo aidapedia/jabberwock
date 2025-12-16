@@ -8,7 +8,7 @@ const (
 	`
 
 	queryFindActiveSessionByTokenID = `
-	SELECT id, user_id, user_agent, ip, created_at, updated_at
+	SELECT id, token, user_id, user_agent, ip, created_at, updated_at
 	FROM sessions
 	WHERE token = $1
 	`
