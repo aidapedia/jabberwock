@@ -12,6 +12,7 @@ import (
 	gers "github.com/aidapedia/gdk/error"
 	ghttp "github.com/aidapedia/gdk/http"
 	"github.com/aidapedia/gdk/telemetry/tracer"
+	"github.com/aidapedia/gdk/util"
 	gvalidation "github.com/aidapedia/gdk/validation"
 	cerror "github.com/aidapedia/jabberwock/internal/common/error"
 	policyRepo "github.com/aidapedia/jabberwock/internal/repository/policy"
@@ -234,11 +235,12 @@ func (uc *Usecase) RefreshToken(ctx context.Context, req RefreshTokenRequest) (r
 			ghttp.Metadata(http.StatusInternalServerError, "Your refresh token is invalid"))
 	}
 
-	tokenID, ok := claims["sub"].(string)
+	token, ok := claims["jti"]
 	if !ok {
 		return RefreshTokenResponse{}, gers.NewWithMetadata(errors.New("invalid token"),
 			ghttp.Metadata(http.StatusInternalServerError, "Your refresh token is invalid"))
 	}
+	tokenID := util.ToStr(token)
 
 	// Get session from database
 	sessions, err := uc.sessionRepo.FindActiveSessionByTokenID(ctx, tokenID)
@@ -258,7 +260,7 @@ func (uc *Usecase) RefreshToken(ctx context.Context, req RefreshTokenRequest) (r
 	}
 
 	// Generate token
-	tokenResp, err := uc.refreshToken(ctx, sessions, claims["role"].(string))
+	tokenResp, err := uc.refreshToken(ctx, sessions, util.ToStr(claims["role"]))
 	if err != nil {
 		return RefreshTokenResponse{}, gers.NewWithMetadata(err,
 			ghttp.Metadata(http.StatusInternalServerError, cerror.ErrorMessageTryAgain.Error()))

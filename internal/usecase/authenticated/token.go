@@ -11,19 +11,23 @@ import (
 )
 
 func (uc *Usecase) generateToken(ctx context.Context, userID int64, roleStr string) (resp TokenResponse, err error) {
-	return createToken(ctx, userID, roleStr)
+	return createToken(ctx, userID, roleStr, "")
 }
 
 func (uc *Usecase) refreshToken(ctx context.Context, session sessionRepo.Session, roleStr string) (resp TokenResponse, err error) {
-	return createToken(ctx, session.UserID, roleStr)
+	return createToken(ctx, session.UserID, roleStr, session.Token)
 }
 
-func createToken(ctx context.Context, userID int64, roleStr string) (resp TokenResponse, err error) {
-	id := uuid.New()
+func createToken(ctx context.Context, userID int64, roleStr, tokenID string) (resp TokenResponse, err error) {
+	id := tokenID
+	if id == "" {
+		id = uuid.New().String()
+	}
+
 	cfg := config.GetConfig(ctx)
 	// Generate access token
 	accessToken, err := gjwt.SignToken(map[string]interface{}{
-		"jti":  id.String(),
+		"jti":  id,
 		"sub":  userID,
 		"role": roleStr,
 		"iss":  cfg.App.Auth.Issuer,
@@ -35,7 +39,7 @@ func createToken(ctx context.Context, userID int64, roleStr string) (resp TokenR
 	}
 	// Generate refresh token
 	refreshToken, err := gjwt.SignToken(map[string]interface{}{
-		"jti":  id.String(),
+		"jti":  id,
 		"sub":  userID,
 		"role": roleStr,
 		"iss":  cfg.App.Auth.Issuer,
@@ -46,8 +50,9 @@ func createToken(ctx context.Context, userID int64, roleStr string) (resp TokenR
 		return resp, err
 	}
 
-	resp.ID = id.String()
+	resp.ID = id
 	resp.AccessToken = accessToken
 	resp.RefreshToken = refreshToken
+	resp.ExpiredIn = int(time.Minute * 15)
 	return resp, nil
 }

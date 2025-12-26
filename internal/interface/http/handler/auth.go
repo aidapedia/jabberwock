@@ -31,7 +31,7 @@ func (h *Handler) Login(c fiber.Ctx) (err error) {
 		return
 	}
 
-	response = resp.ToSuccessResponse(ucResp)
+	response = resp.ToSuccessResponse(c, ucResp)
 	return nil
 }
 
@@ -108,6 +108,6 @@ func (h *Handler) RefreshToken(c fiber.Ctx) (err error) {
 		return
 	}
 
-	response = resp.ToSuccessResponse(ucResp)
+	response = resp.ToSuccessResponse(c, ucResp)
 	return
 }

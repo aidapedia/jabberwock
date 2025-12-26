@@ -39,7 +39,7 @@ func (r *Repository) FindActiveSessionByTokenID(ctx context.Context, tokenID str
 	query := queryFindActiveSessionByTokenID
 	args := []interface{}{tokenID}
 	err = r.database.QueryRowContext(ctx, query, args...).
-		Scan(&resp.ID, &resp.UserID, &resp.UserAgent, &resp.IP, &resp.CreatedAt, &resp.UpdatedAt)
+		Scan(&resp.ID, &resp.Token, &resp.UserID, &resp.UserAgent, &resp.IP, &resp.CreatedAt, &resp.UpdatedAt)
 	if err != nil {
 		return resp, err
 	}

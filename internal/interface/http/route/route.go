@@ -11,7 +11,8 @@ func Register(app *fiber.App, handler *handler.Handler, middleware *middleware.M
 	app.Get("/ping", handler.Ping)
 	app.Group("/auth").
 		Post("/login", handler.Login).
-		Post("/register", handler.Register)
+		Post("/register", handler.Register).
+		Post("/refresh", handler.RefreshToken)
 
 	// Protected Routes
 	protected := app.Group("", middleware.CheckAccess())

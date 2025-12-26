@@ -1,6 +1,7 @@
 package model
 
 import (
+	"errors"
 	"net/http"
 
 	gers "github.com/aidapedia/gdk/error"
@@ -10,9 +11,9 @@ import (
 )
 
 type LoginResponse struct {
-	AccessToken  string `json:"access_token"`
-	RefreshToken string `json:"refresh_token"`
-	User         struct {
+	AccessToken string `json:"access_token"`
+	ExpiredIn   int    `json:"expired_in"`
+	User        struct {
 		ID       int64  `json:"id"`
 		Name     string `json:"name"`
 		ImageURL string `json:"image_url"`
@@ -21,13 +22,22 @@ type LoginResponse struct {
 	Permissions []string `json:"permissions"`
 }
 
-func (e *LoginResponse) ToSuccessResponse(resp authUC.LoginResponse) *ghttp.SuccessResponse {
+func (e *LoginResponse) ToSuccessResponse(c fiber.Ctx, resp authUC.LoginResponse) *ghttp.SuccessResponse {
+	c.Cookie(&fiber.Cookie{
+		Name:     "RefreshToken",
+		Value:    resp.RefreshToken,
+		Path:     "/auth/refresh",
+		HTTPOnly: true,
+		Secure:   true,
+		SameSite: fiber.CookieSameSiteStrictMode,
+	})
+
 	e.AccessToken = resp.AccessToken
-	e.RefreshToken = resp.RefreshToken
 	e.User.ID = resp.User.ID
 	e.User.Name = resp.User.Name
 	e.User.ImageURL = resp.User.AvatarURL
 	e.User.Phone = resp.User.Phone
+	e.ExpiredIn = resp.ExpiredIn
 	for _, v := range resp.Permissions {
 		e.Permissions = append(e.Permissions, v.Name)
 	}
@@ -53,29 +63,34 @@ func (e *LoginRequest) BindAndValidate(c fiber.Ctx) (ucReq authUC.LoginRequest, 
 }
 
 type RefreshTokenResponse struct {
-	TokenType    string `json:"token_type"`
-	AccessToken  string `json:"access_token"`
-	RefreshToken string `json:"refresh_token"`
+	TokenType   string `json:"token_type"`
+	AccessToken string `json:"access_token"`
 }
 
-func (e *RefreshTokenResponse) ToSuccessResponse(resp authUC.RefreshTokenResponse) *ghttp.SuccessResponse {
+func (e *RefreshTokenResponse) ToSuccessResponse(c fiber.Ctx, resp authUC.RefreshTokenResponse) *ghttp.SuccessResponse {
+	c.Cookie(&fiber.Cookie{
+		Name:     "RefreshToken",
+		Value:    resp.RefreshToken,
+		Path:     "/auth/refresh",
+		HTTPOnly: true,
+		Secure:   true,
+		SameSite: fiber.CookieSameSiteStrictMode,
+	})
 	e.TokenType = resp.TokenType
 	e.AccessToken = resp.AccessToken
-	e.RefreshToken = resp.RefreshToken
 	return &ghttp.SuccessResponse{
 		Data: e,
 	}
 }
 
 type RefreshTokenRequest struct {
-	RefreshToken string `json:"refresh_token"`
 }
 
 func (e *RefreshTokenRequest) BindAndValidate(c fiber.Ctx) (ucReq authUC.RefreshTokenRequest, err error) {
-	if err := c.Bind().Body(e); err != nil {
-		return ucReq, ghttp.JSONResponse(c, nil, gers.NewWithMetadata(err, ghttp.Metadata(http.StatusBadRequest, "Bad Request")))
+	ucReq.RefreshToken = c.Cookies("RefreshToken")
+	if ucReq.RefreshToken == "" {
+		return ucReq, gers.NewWithMetadata(errors.New("refresh token is required"), ghttp.Metadata(http.StatusBadRequest, "Bad Request"))
 	}
-	ucReq.RefreshToken = e.RefreshToken
 	ucReq.IP = c.IP()
 	ucReq.UserAgent = c.Get(fiber.HeaderUserAgent)
 	return ucReq, nil
