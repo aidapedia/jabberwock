@@ -10,6 +10,7 @@ type TokenResponse struct {
 	Type         string
 	AccessToken  string
 	RefreshToken string
+	ExpiredIn    int
 }
 
 type CheckAccessTokenPayload struct {
@@ -33,6 +34,7 @@ type LoginResponse struct {
 	TokenType    string
 	AccessToken  string
 	RefreshToken string
+	ExpiredIn    int
 	User         userRepo.User
 	Permissions  []policyRepo.Permission
 }
@@ -43,6 +45,7 @@ func (e *LoginResponse) Transform(token TokenResponse, user userRepo.User, permi
 	e.RefreshToken = token.RefreshToken
 	e.User = user
 	e.Permissions = permissions
+	e.ExpiredIn = token.ExpiredIn
 }
 
 type LogoutRequest struct {

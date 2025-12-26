@@ -53,5 +53,6 @@ func createToken(ctx context.Context, userID int64, roleStr, tokenID string) (re
 	resp.ID = id
 	resp.AccessToken = accessToken
 	resp.RefreshToken = refreshToken
+	resp.ExpiredIn = int(time.Minute * 15)
 	return resp, nil
 }

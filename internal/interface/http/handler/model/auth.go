@@ -12,6 +12,7 @@ import (
 
 type LoginResponse struct {
 	AccessToken string `json:"access_token"`
+	ExpiredIn   int    `json:"expired_in"`
 	User        struct {
 		ID       int64  `json:"id"`
 		Name     string `json:"name"`
@@ -36,6 +37,7 @@ func (e *LoginResponse) ToSuccessResponse(c fiber.Ctx, resp authUC.LoginResponse
 	e.User.Name = resp.User.Name
 	e.User.ImageURL = resp.User.AvatarURL
 	e.User.Phone = resp.User.Phone
+	e.ExpiredIn = resp.ExpiredIn
 	for _, v := range resp.Permissions {
 		e.Permissions = append(e.Permissions, v.Name)
 	}
